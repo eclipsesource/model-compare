@@ -1,0 +1,122 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.model.comparison</groupId>
+  <artifactId>model_comparison</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>model_comparison</name>
+  <description>Framework for model comparison based on EMF compare</description>
+  
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+<repositories>   
+
+</repositories>   
+
+  
+  
+  <dependencies>	
+  		<!--  https://github.com/akane34/emf_compare_programatically/blob/master/pom.xml -->
+  		<!-- ************************** EMF COMPARE DEPENDENCIES ********************************* -->	
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>15.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>org.eclipse.emf.common</artifactId>
+		    <version>2.19.0</version> <!-- 2.11.1 -->
+		</dependency>
+
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+		    <version>2.16.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>org.eclipse.emf.ecore</artifactId>
+		    <version>2.21.0</version>
+		</dependency>
+		
+		<!--  org.eclipse.ocl 3.5.0 missing -->
+		<!--  org.eclipse.ocl.ecore 3.5.0 missing -->
+		<!--  org.apache.log4j 1.2.15 missing -->
+		
+		<dependency>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.17</version>
+		</dependency>
+	    
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>compare</artifactId>
+		    <version>3.5.3</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare_3.5.3.201911051515.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>compare.rcp.ui</artifactId>
+		    <version>4.4.2</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare.rcp.ui_4.4.2.201911051515.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>compare.ide.ui</artifactId>
+		    <version>4.4.3</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare.ide.ui_4.4.3.201909101346.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.compare</groupId>
+		    <artifactId>org.eclipse.compare</artifactId>
+		    <version>3.7.1000</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.compare_3.7.1000.v20200511-1203.jar</systemPath>
+		</dependency>
+		
+		
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>org.eclipse.emf.edit</artifactId>
+		    <version>2.16.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.runtime</artifactId>
+		    <version>3.7.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>compare.edit</artifactId>
+		    <version>4.3.1</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare.edit_4.3.1.201909101346.jar</systemPath>
+		</dependency>
+		
+		
+		<!-- for JSON conversion ??? -->
+		<dependency>
+		    <groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>
+		    <version>2.8.6</version>
+		</dependency>
+		
+		
+				
+	</dependencies> 
+    
+
+
+</project>
