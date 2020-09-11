@@ -16,6 +16,7 @@ import { injectable, postConstruct } from 'inversify';
 
 import { TreeEditor } from './interfaces';
 import { AddCommandProperty, MasterTreeWidget } from './master-tree-widget';
+//import { TextWidget } from './TextWidget';
 
 @injectable()
 export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveable {
@@ -59,7 +60,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel1.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetModel2.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetOverview.addClass(BaseTreeEditorWidget.Styles.TREE);
-
 
         this.toDispose.push(
             this.treeWidgetModel1.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel1, ev))
@@ -148,6 +148,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     }: AddCommandProperty): void;
 
     protected onAfterAttach(msg: Message): void {
+        //this.splitPanelMain.addWidget(new TextWidget("Best Title Ever"));
         this.splitPanelMain.addWidget(this.splitPanelOverview);
         this.splitPanelMain.addWidget(this.splitPanelModels);
 

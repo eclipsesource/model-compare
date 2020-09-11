@@ -8,7 +8,6 @@ import { TreeEditor } from '../tree-widget/interfaces';
 import { AddCommandProperty, MasterTreeWidget } from '../tree-widget/master-tree-widget';
 import { TreeNode, CompositeTreeNode, Title, Widget } from '@theia/core/lib/browser';
 import { ComparisonBackendService } from '../../common/protocol';
-import URI from '@theia/core/lib/common/uri';
 import { BaseTreeEditorWidget } from '../tree-widget';
 
 
@@ -16,9 +15,9 @@ export const ComparisonTreeEditorWidgetOptions = Symbol(
   'ComparisonTreeEditorWidgetOptions'
 );
 export interface ComparisonTreeEditorWidgetOptions {
-  left: URI,
-  right: URI,
-  origin: URI
+  left: string,
+  right: string,
+  origin: string
 }
 
 
@@ -61,7 +60,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
 
   public setContent(options) {
     this.options = options;
-    this.comparisonBackendService.getNewComparison(String(options.left), String(options.right), String(options.origin)).then(r => {
+    this.comparisonBackendService.getNewComparison(options.left, options.right, options.origin).then(r => {
       let response: JSONCompareResponse = JSON.parse(r);
 
       if (response.error.trim() !== "") {
@@ -116,11 +115,11 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
 
     let rootNode = treeWidget.model.root as TreeEditor.RootNode;
     let nodes: Array<TreeNode> = [...rootNode.children];
-    while (nodes.length !== 0) {
-      const node : TreeNode = nodes.pop();
-      if (TreeEditor.Node.is(node)) {
-        if (node.jsonforms.data.uuid === uuid) {
-          treeWidget.model.collapseAll(rootNode).then(function() {
+    treeWidget.model.collapseAll(rootNode).then(() => {
+      while (nodes.length !== 0) {
+        const node : TreeNode = nodes.pop();
+        if (TreeEditor.Node.is(node)) {
+          if (node.jsonforms.data.uuid === uuid) {
             let parent: CompositeTreeNode = node.parent;
             while(parent && parent !== rootNode) {
               if (TreeEditor.Node.is(parent)) {
@@ -129,14 +128,14 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
               parent = parent.parent;
             }
             treeWidget.model.selectNode(node);
+            break;
+          }
+          node.children.forEach(element => {
+            nodes.push(element);
           });
-          break;
         }
-        node.children.forEach(element => {
-          nodes.push(element);
-        });
       }
-    }
+    });
   }
 
 

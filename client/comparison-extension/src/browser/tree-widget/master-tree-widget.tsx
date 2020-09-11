@@ -12,12 +12,13 @@ import { Emitter, MenuPath } from '@theia/core';
 import { ExpandableTreeNode, TreeModel } from '@theia/core/lib/browser';
 import { ContextMenuRenderer } from '@theia/core/lib/browser/context-menu-renderer';
 import { TreeNode } from '@theia/core/lib/browser/tree/tree';
-import { NodeProps, TreeProps, TreeWidget } from '@theia/core/lib/browser/tree/tree-widget';
+import { NodeProps, TreeProps } from '@theia/core/lib/browser/tree/tree-widget';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
 import { v4 } from 'uuid';
 
 import { TreeEditor } from './interfaces';
+import { TreeWidgetWithTitle } from './tree-widget-with-title';
 
 export interface AddCommandProperty {
     /** The node to add a new child to. */
@@ -41,7 +42,7 @@ export namespace TreeContextMenu {
 }
 
 @injectable()
-export class MasterTreeWidget extends TreeWidget {
+export class MasterTreeWidget extends TreeWidgetWithTitle {
     protected onTreeWidgetSelectionEmitter = new Emitter<
         readonly Readonly<TreeEditor.Node>[]
     >();

@@ -46,6 +46,7 @@ export class ComparisonTreeLabelProvider implements LabelProviderContribution {
         case 'diff':
         case 'node':
         case 'attribute':
+        case 'reference':
         case 'information':
           return data.name || this.getTypeName(data.eClass);
         default:

@@ -14,25 +14,29 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 
-import { CommandRegistry, Command, MenuModelRegistry, SelectionService, MessageService } from '@theia/core/lib/common';
-import { FrontendApplication, AbstractViewContribution } from '@theia/core/lib/browser';
-import { WidgetManager } from '@theia/core/lib/browser/widget-manager';
+import { CommandRegistry, Command, MenuModelRegistry, SelectionService } from '@theia/core/lib/common';
+import { AbstractViewContribution } from '@theia/core/lib/browser';
 import { injectable, inject } from 'inversify';
-import { OpenerService } from '@theia/core/lib/browser'; //open
 import { NavigatorContextMenu, FileNavigatorContribution } from '@theia/navigator/lib/browser/navigator-contribution';
 import { UriCommandHandler, UriAwareCommandHandler } from '@theia/core/lib/common/uri-command-handler';
-//import { DiffUris } from '@theia/core/lib/browser/diff-uris';
 import URI from '@theia/core/lib/common/uri';
-//import { WorkspaceRootUriAwareCommandHandler } from '@theia/workspace/lib/browser/workspace-commands';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { ComparisonTreeEditorWidget, ComparisonTreeEditorWidgetOptions } from './tree-editor/ComparisonTreeEditorWidget';
+import { ComparisonOrderDialog } from './comparison-order-dialog';
+import { TreeComparisonConfiguration } from './tree-comparison-configuration';
+import { GraphicalComparisonOpener } from './graphical-comparison-opener';
 
 export namespace ComparisonCommands {
     export const FILE_COMPARE_TREE: Command = {
         id: 'file.compare.tree',
         category: "Comparison",
         label: 'Compare with tree view'
+    };
+    export const FILE_COMPARE_GRAPHICALLY: Command = {
+        id: 'file.compare.graphical',
+        category: "Comparison",
+        label: 'Compare graphically'
     };
 }
 
@@ -41,7 +45,7 @@ export namespace ScmNavigatorMoreToolbarGroups {
 }
 
 @injectable()
-export class ComparisonTreeContribution extends AbstractViewContribution<ComparisonTreeEditorWidget> implements TabBarToolbarContribution {
+export class ComparisonContribution extends AbstractViewContribution<ComparisonTreeEditorWidget> implements TabBarToolbarContribution {
 
     @inject(CommandRegistry)
     protected readonly commandRegistry: CommandRegistry;
@@ -54,14 +58,9 @@ export class ComparisonTreeContribution extends AbstractViewContribution<Compari
 
     constructor(
         @inject(SelectionService) protected readonly selectionService: SelectionService,
-        @inject(WidgetManager) protected readonly widgetManager: WidgetManager,
-        @inject(FrontendApplication) protected readonly app: FrontendApplication,
-        //@inject(GitQuickOpenService) protected readonly quickOpenService: GitQuickOpenService,
-        //@inject(FileService) protected readonly fileService: FileService,
-        @inject(OpenerService) protected openerService: OpenerService,
-        @inject(MessageService) protected readonly notifications: MessageService
-        //@inject(ScmService) protected readonly scmService: ScmService
-    ) {
+        @inject(GraphicalComparisonOpener) protected readonly graphicalOpener: GraphicalComparisonOpener,
+        @inject(TreeComparisonConfiguration) protected readonly config: TreeComparisonConfiguration) {
+            
         super({
             widgetId: ComparisonTreeEditorWidget.WIDGET_ID,
             widgetName: ComparisonTreeEditorWidget.WIDGET_LABEL,
@@ -75,53 +74,58 @@ export class ComparisonTreeContribution extends AbstractViewContribution<Compari
         menus.registerMenuAction(NavigatorContextMenu.COMPARE, {
             commandId: ComparisonCommands.FILE_COMPARE_TREE.id
         });
+        menus.registerMenuAction(NavigatorContextMenu.COMPARE, {
+            commandId: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id
+        });
     }
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand(ComparisonCommands.FILE_COMPARE_TREE, this.newMultiUriAwareCommandHandler({
-            //isVisible: uri => !!this.findGitRepository(uri),
-            //isEnabled: uri => !!this.findGitRepository(uri),
+            isVisible: uris => this.showTreeCommand(uris),
+            isEnabled: uris => this.showTreeCommand(uris),
             execute: async uris => {
-                const [file1, file2, file3] = uris;
-                // TODO: add dialog https://github.com/eclipse-theia/theia/issues/2959
-                const options: ComparisonTreeEditorWidgetOptions = {
-                    left: file1,
-                    right: file2,
-                    origin: file3
-                }
-                this.showWidget(options);
+                const [left, right, origin] = uris;
+               
+                const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right), String(origin));
+                dialog.open().then(() => {
+                    const options: ComparisonTreeEditorWidgetOptions = {
+                        left: dialog.getLeft(),
+                        right: dialog.getRight(),
+                        origin: dialog.getOrigin()
+                    }
+                    this.showTreeWidget(options);
+                });
             }
-            /*
-            execute: async fileUri => {
-                console.log(fileUri);
-                
-                await this.quickOpenService.chooseTagsAndBranches(
-                    async (fromRevision, toRevision) => {
-                        const uri = fileUri.toString();
-                        const fileStat = await this.fileService.resolve(fileUri);
-                        const options: Git.Options.Diff = {
-                            uri,
-                            range: {
-                                fromRevision
-                            }
-                        };
-                        if (fileStat.isDirectory) {
-                            this.showWidget(options);
-                        } else {
-                            const fromURI = fileUri.withScheme(GIT_RESOURCE_SCHEME).withQuery(fromRevision);
-                            const toURI = fileUri;
-                            const diffUri = DiffUris.encode(fromURI, toURI);
-                            if (diffUri) {
-                                open(this.openerService, diffUri).catch(e => {
-                                    this.notifications.error(e.message);
-                                });
-                            }
-                        }
-                    }, this.findGitRepository(fileUri));
-                    
-            }
-            */
         }));
+        commands.registerCommand(ComparisonCommands.FILE_COMPARE_GRAPHICALLY, this.newMultiUriAwareCommandHandler({
+            isVisible: uris => this.showGraphicallyCommand(uris),
+            isEnabled: uris => this.showGraphicallyCommand(uris),
+            execute: async uris => {
+                const [left, right] = uris;
+                const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
+                dialog.open().then(() => {
+                    this.graphicalOpener.showWidgets(this.widgetManager, new URI(dialog.getLeft()), new URI(dialog.getRight()));
+                });
+            }
+        }));
+    }
+
+    showTreeCommand(uris: URI[]): boolean{
+        if (uris.length < 2 || uris.length > 3) return false;
+        for(let i=0; i<uris.length; i++) {
+            if (!this.config.canHandle(uris[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    showGraphicallyCommand(uris: URI[]): boolean {
+        if (this.config.supportGraphicalComparison()) {
+            if (uris.length !== 2) return false;
+            return this.config.canHandle(uris[0]) && this.config.canHandle(uris[1]);
+        }
+        return false;
     }
 
     registerToolbarItems(registry: TabBarToolbarRegistry): void {
@@ -131,19 +135,15 @@ export class ComparisonTreeContribution extends AbstractViewContribution<Compari
             tooltip: ComparisonCommands.FILE_COMPARE_TREE.label,
             group: ScmNavigatorMoreToolbarGroups.SCM,
         });
+        this.fileNavigatorContribution.registerMoreToolbarItem({
+            id: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
+            command: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
+            tooltip: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.label,
+            group: ScmNavigatorMoreToolbarGroups.SCM,
+        });
     }
 
-    /*
-    protected findGitRepository(uri: URI): Repository | undefined {
-        const repo = this.scmService.findRepository(uri);
-        if (repo && repo.provider.id === 'git') {
-            return { localUri: repo.provider.rootUri };
-        }
-        return undefined;
-    }
-    */
-
-    async showWidget(options: ComparisonTreeEditorWidgetOptions): Promise<ComparisonTreeEditorWidget> {
+    async showTreeWidget(options: ComparisonTreeEditorWidgetOptions): Promise<ComparisonTreeEditorWidget> {
         const widget = await this.widget;
         widget.setContent(options);
         return this.openView({
@@ -151,14 +151,7 @@ export class ComparisonTreeContribution extends AbstractViewContribution<Compari
         });
     }
     
-
     protected newMultiUriAwareCommandHandler(handler: UriCommandHandler<URI[]>): UriAwareCommandHandler<URI[]> {
         return new UriAwareCommandHandler(this.selectionService, handler, { multi: true });
     }
-
-    /*
-    protected newWorkspaceRootUriAwareCommandHandler(handler: UriCommandHandler<URI>): WorkspaceRootUriAwareCommandHandler {
-        return new WorkspaceRootUriAwareCommandHandler(this.workspaceService, this.selectionService, handler);
-    }
-    */
 }

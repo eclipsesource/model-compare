@@ -28,3 +28,14 @@
 .gray {
     color: gray;
 }
+
+.orderDialog {
+    flex: 1 100%;
+    padding-bottom: calc(var(--theia-ui-padding) * 3);
+ }
+
+ .orderDialogInput {
+     padding: 0 10px;
+     width: 100%;
+     box-sizing: border-box;
+ }

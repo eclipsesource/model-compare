@@ -18,16 +18,21 @@ import { ComparisonTreeNodeFactory } from './tree-editor/comparison-node-factory
 //import { CoffeeLabelProviderContribution } from './ComparisonLabelProvider';
 import { bindViewContribution } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { ComparisonTreeContribution } from './comparison-contribution';
+import { ComparisonContribution } from './comparison-contribution';
 import { BackendClient, ComparisonBackendService, COMPARISON_BACKEND_PATH } from '../common/protocol';
+import { TreeComparisonConfiguration } from './tree-comparison-configuration';
+import { GraphicalComparisonOpener } from './graphical-comparison-opener';
 
 
 export default new ContainerModule(bind => {
     console.log("starting frontend");
 
     // compare option in file system
-    bindViewContribution(bind, ComparisonTreeContribution);
-    bind(TabBarToolbarContribution).toService(ComparisonTreeContribution);
+    bind(GraphicalComparisonOpener).toSelf().inSingletonScope();
+    bind(TreeComparisonConfiguration).toSelf().inSingletonScope();
+    bindViewContribution(bind, ComparisonContribution);
+    bind(TabBarToolbarContribution).toService(ComparisonContribution);
+    
 
      // Bind Theia IDE contributions
     //(LabelProviderContribution).to(CoffeeLabelProviderContribution);
@@ -71,7 +76,7 @@ export default new ContainerModule(bind => {
     }));
     */
 
-    // frontend
+    // Backend
     bind(BackendClient).to(BackendClientImpl).inSingletonScope();
     bind(ComparisonBackendService).toDynamicValue(ctx => {
         const connection = ctx.container.get(WebSocketConnectionProvider);
