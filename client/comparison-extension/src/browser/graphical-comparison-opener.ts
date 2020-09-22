@@ -1,4 +1,3 @@
-import { WidgetManager } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 /********************************************************************************
  * Copyright (C) 2018 TypeFox and others.
@@ -15,22 +14,21 @@ import URI from '@theia/core/lib/common/uri';
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
+import { ComparisonBackendService } from '../common/protocol';
 
 @injectable()
 export class GraphicalComparisonOpener {
-    showWidgets(widgetManager: WidgetManager, left: URI, right: URI) {
-      throw Error("Needs to be implemented in the specific editors");
 
-      /*
-      super({
-        widgetId: ComparisonTreeEditorWidget.WIDGET_ID,
-        widgetName: ComparisonTreeEditorWidget.WIDGET_LABEL,
-        defaultWidgetOptions: {
-            area: 'main',
-            mode: 'open-to-left' //open-to-right   ? -> split-left
-        }
-     });
-    */
-    }
+  constructor(
+    @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService) {
+  }
+
+  showWidgets(left: URI, right: URI) {
+    throw Error("Needs to be implemented in the specific editors");
+  }
+
+  getHighlights(left: string, right: string): any {
+    return this.comparisonBackendService.getHighlight(left, right);
+  }
 }

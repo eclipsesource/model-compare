@@ -104,7 +104,7 @@ export class ComparisonContribution extends AbstractViewContribution<ComparisonT
                 const [left, right] = uris;
                 const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
                 dialog.open().then(() => {
-                    this.graphicalOpener.showWidgets(this.widgetManager, new URI(dialog.getLeft()), new URI(dialog.getRight()));
+                    this.graphicalOpener.showWidgets(new URI(dialog.getLeft()), new URI(dialog.getRight()));
                 });
             }
         }));

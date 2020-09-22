@@ -24,15 +24,17 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
     constructor(
         @inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) { }
 
-    greet(): Promise<string> {
-        return new Promise<string>((resolve, reject) =>
-            this.client ? this.client.getName().then(greet => resolve('Hello ' + greet))
-                : reject('No Client'));
-    }
-
     getNewComparison(left: string, right: string, origin: string): Promise<string>{
         return new Promise((resolve, reject) => {
             this.serverConnection.compare(left, right, origin).then(response => {
+                resolve(response);
+            }).catch(err => reject(err));
+        });
+    }
+
+    getHighlight(left: string, right: string): Promise<string>{
+        return new Promise((resolve, reject) => {
+            this.serverConnection.highlight(left, right).then(response => {
                 resolve(response);
             }).catch(err => reject(err));
         });
@@ -43,6 +45,7 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
     }
     setClient(client: BackendClient): void {
         this.client = client;
+        console.log(this.client);
     }
 
 

@@ -15,6 +15,7 @@
  ********************************************************************************/
 import { injectable } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
+import * as path from "path";
 
 @injectable()
 export class TreeComparisonConfiguration {
@@ -22,7 +23,14 @@ export class TreeComparisonConfiguration {
       return uri.path.ext === '.eam';
     }
 
-    supportGraphicalComparison() {
+    supportGraphicalComparison(): boolean {
       return true;
     }
+
+    getComparisonJarPath(): string {
+      console.log("dir: " + __dirname);
+      return path.resolve(__dirname, '..', '..', 'server', 'model-comparison-1.0.jar');
+    }
+
+    // metamodel path & package class ?
 }

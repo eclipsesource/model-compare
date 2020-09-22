@@ -17,6 +17,7 @@ interface JSONCompareResponse {
     overviewTree: any;
     leftTree: any;
     rightTree: any;
+    uuidConnection: any;
     conflicts: string;
     error: string;
 }

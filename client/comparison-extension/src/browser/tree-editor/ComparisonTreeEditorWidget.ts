@@ -25,6 +25,7 @@ export interface ComparisonTreeEditorWidgetOptions {
 export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
 
   protected options: ComparisonTreeEditorWidgetOptions;
+  protected comparisonResponse: JSONCompareResponse;
 
   constructor(
     @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService,
@@ -62,6 +63,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
     this.options = options;
     this.comparisonBackendService.getNewComparison(options.left, options.right, options.origin).then(r => {
       let response: JSONCompareResponse = JSON.parse(r);
+      this.comparisonResponse = response;
 
       if (response.error.trim() !== "") {
         this.logger.error(response.error);
@@ -128,12 +130,18 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
               parent = parent.parent;
             }
             treeWidget.model.selectNode(node);
-            break;
+            return;
           }
           node.children.forEach(element => {
             nodes.push(element);
           });
         }
+      }
+
+      // try if there are connectedd uuids
+      let relatedUuid = this.comparisonResponse.uuidConnection[uuid];
+      if (relatedUuid) {
+        this.navigateToSelection(treeWidget, relatedUuid);
       }
     });
   }

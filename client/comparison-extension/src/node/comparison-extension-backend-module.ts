@@ -16,6 +16,7 @@
 
 import { ConnectionHandler, JsonRpcConnectionHandler } from "@theia/core";
 import { ContainerModule } from "inversify";
+import { TreeComparisonConfiguration } from "../browser/tree-comparison-configuration";
 import { BackendClient, COMPARISON_BACKEND_PATH, ComparisonBackendService} from "../common/protocol";
 import { ComparisonBackendServiceImpl } from "./comparison-backend-service";
 import { ComparisonServerExtensionConnection } from "./comparison-server-extension-connection";
@@ -33,6 +34,7 @@ export default new ContainerModule(bind => {
         })
     ).inSingletonScope();
 
+    bind(TreeComparisonConfiguration).toSelf().inSingletonScope();
     bind(ComparisonServerExtensionConnection).toSelf().inSingletonScope();
 });
 
