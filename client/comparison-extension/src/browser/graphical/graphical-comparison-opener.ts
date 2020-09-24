@@ -1,3 +1,4 @@
+import URI from '@theia/core/lib/common/uri';
 /********************************************************************************
  * Copyright (C) 2018 TypeFox and others.
  *
@@ -13,24 +14,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-import URI from '@theia/core/lib/common/uri';
-import * as path from "path";
+import { injectable, inject } from 'inversify';
+import { ComparisonBackendService } from '../../common/protocol';
+import { GLSPDiagramWidget } from "@eclipse-glsp/theia-integration/lib/browser";
 
 @injectable()
-export class TreeComparisonConfiguration {
-    canHandle(uri: URI): boolean {
-      return uri.path.ext === '.eam';
-    }
+export class GraphicalComparisonOpener {
 
-    supportGraphicalComparison(): boolean {
-      return true;
-    }
+  constructor(
+    @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService) {
+  }
 
-    getComparisonJarPath(): string {
-      console.log("dir: " + __dirname);
-      return path.resolve(__dirname, '..', '..', 'server', 'model-comparison-1.0.jar');
-    }
+  async getLeftDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
+    throw Error("Needs to be implemented in the specific editors");
+  }
 
-    // metamodel path & package class ?
+  async getRightDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
+    throw Error("Needs to be implemented in the specific editors");
+  }
+
+  getHighlights(left: string, right: string): any {
+    return this.comparisonBackendService.getHighlight(left, right);
+  }
 }

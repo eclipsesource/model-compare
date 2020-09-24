@@ -22,17 +22,13 @@ import { UriCommandHandler, UriAwareCommandHandler } from '@theia/core/lib/commo
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { ComparisonTreeEditorWidget, ComparisonTreeEditorWidgetOptions } from './tree-editor/ComparisonTreeEditorWidget';
-import { ComparisonOrderDialog } from './comparison-order-dialog';
-import { TreeComparisonConfiguration } from './tree-comparison-configuration';
+import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from './graphical-comparison-widget';
+import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
 import { GraphicalComparisonOpener } from './graphical-comparison-opener';
+import { ComparisonOrderDialog } from '../comparison-order-dialog';
 
-export namespace ComparisonCommands {
-    export const FILE_COMPARE_TREE: Command = {
-        id: 'file.compare.tree',
-        category: "Comparison",
-        label: 'Compare with tree view'
-    };
+
+export namespace GraphicalComparisonCommands {
     export const FILE_COMPARE_GRAPHICALLY: Command = {
         id: 'file.compare.graphical',
         category: "Comparison",
@@ -45,7 +41,7 @@ export namespace ScmNavigatorMoreToolbarGroups {
 }
 
 @injectable()
-export class ComparisonContribution extends AbstractViewContribution<ComparisonTreeEditorWidget> implements TabBarToolbarContribution {
+export class GraphicalComparisonContribution extends AbstractViewContribution<GraphicalComparisonWidget> implements TabBarToolbarContribution {
 
     @inject(CommandRegistry)
     protected readonly commandRegistry: CommandRegistry;
@@ -59,11 +55,11 @@ export class ComparisonContribution extends AbstractViewContribution<ComparisonT
     constructor(
         @inject(SelectionService) protected readonly selectionService: SelectionService,
         @inject(GraphicalComparisonOpener) protected readonly graphicalOpener: GraphicalComparisonOpener,
-        @inject(TreeComparisonConfiguration) protected readonly config: TreeComparisonConfiguration) {
+        @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration) {
             
         super({
-            widgetId: ComparisonTreeEditorWidget.WIDGET_ID,
-            widgetName: ComparisonTreeEditorWidget.WIDGET_LABEL,
+            widgetId: GraphicalComparisonWidget.WIDGET_ID,
+            widgetName: GraphicalComparisonWidget.WIDGET_LABEL,
             defaultWidgetOptions: {
                 area: 'main'
             }
@@ -72,52 +68,30 @@ export class ComparisonContribution extends AbstractViewContribution<ComparisonT
 
     registerMenus(menus: MenuModelRegistry): void {
         menus.registerMenuAction(NavigatorContextMenu.COMPARE, {
-            commandId: ComparisonCommands.FILE_COMPARE_TREE.id
-        });
-        menus.registerMenuAction(NavigatorContextMenu.COMPARE, {
-            commandId: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id
+            commandId: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.id
         });
     }
 
     registerCommands(commands: CommandRegistry): void {
-        commands.registerCommand(ComparisonCommands.FILE_COMPARE_TREE, this.newMultiUriAwareCommandHandler({
-            isVisible: uris => this.showTreeCommand(uris),
-            isEnabled: uris => this.showTreeCommand(uris),
-            execute: async uris => {
-                const [left, right, origin] = uris;
-               
-                const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right), String(origin));
-                dialog.open().then(() => {
-                    const options: ComparisonTreeEditorWidgetOptions = {
-                        left: dialog.getLeft(),
-                        right: dialog.getRight(),
-                        origin: dialog.getOrigin()
-                    }
-                    this.showTreeWidget(options);
-                });
-            }
-        }));
-        commands.registerCommand(ComparisonCommands.FILE_COMPARE_GRAPHICALLY, this.newMultiUriAwareCommandHandler({
+        commands.registerCommand(GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY, this.newMultiUriAwareCommandHandler({
             isVisible: uris => this.showGraphicallyCommand(uris),
             isEnabled: uris => this.showGraphicallyCommand(uris),
             execute: async uris => {
                 const [left, right] = uris;
                 const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
                 dialog.open().then(() => {
-                    this.graphicalOpener.showWidgets(new URI(dialog.getLeft()), new URI(dialog.getRight()));
+                    this.graphicalOpener.getHighlights(String(left), String(right)).then(async (highlights: any) => {
+                        const leftWidget = await this.graphicalOpener.getLeftDiagram(new URI(dialog.getLeft()), highlights);
+                        const rightWidget = await this.graphicalOpener.getRightDiagram(new URI(dialog.getRight()), highlights);
+                        const options: GraphicalComparisonWidgetOptions = {
+                            left: leftWidget,
+                            right: rightWidget
+                        };
+                        this.showGraphicalComparisonWidget(options);
+                    });
                 });
             }
         }));
-    }
-
-    showTreeCommand(uris: URI[]): boolean{
-        if (uris.length < 2 || uris.length > 3) return false;
-        for(let i=0; i<uris.length; i++) {
-            if (!this.config.canHandle(uris[i])) {
-                return false;
-            }
-        }
-        return true;
     }
 
     showGraphicallyCommand(uris: URI[]): boolean {
@@ -130,20 +104,14 @@ export class ComparisonContribution extends AbstractViewContribution<ComparisonT
 
     registerToolbarItems(registry: TabBarToolbarRegistry): void {
         this.fileNavigatorContribution.registerMoreToolbarItem({
-            id: ComparisonCommands.FILE_COMPARE_TREE.id,
-            command: ComparisonCommands.FILE_COMPARE_TREE.id,
-            tooltip: ComparisonCommands.FILE_COMPARE_TREE.label,
-            group: ScmNavigatorMoreToolbarGroups.SCM,
-        });
-        this.fileNavigatorContribution.registerMoreToolbarItem({
-            id: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
-            command: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
-            tooltip: ComparisonCommands.FILE_COMPARE_GRAPHICALLY.label,
+            id: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
+            command: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
+            tooltip: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.label,
             group: ScmNavigatorMoreToolbarGroups.SCM,
         });
     }
 
-    async showTreeWidget(options: ComparisonTreeEditorWidgetOptions): Promise<ComparisonTreeEditorWidget> {
+    async showGraphicalComparisonWidget(options: GraphicalComparisonWidgetOptions): Promise<GraphicalComparisonWidget> {
         const widget = await this.widget;
         widget.setContent(options);
         return this.openView({

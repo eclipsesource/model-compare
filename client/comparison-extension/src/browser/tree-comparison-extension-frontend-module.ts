@@ -13,32 +13,26 @@ import { createBasicTreeContainter } from './tree-widget/util';
 import { ComparisonTreeEditorWidget, ComparisonTreeEditorWidgetOptions } from './tree-editor/ComparisonTreeEditorWidget';
 import { ComparisonModelService } from './tree-editor/comparison-model-service';
 import { ComparisonTreeNodeFactory } from './tree-editor/comparison-node-factory';
-//import { ComparisonTreeEditorContribution } from './comparison-editor-tree-contribution';
 //import { MenuContribution, CommandContribution } from '@theia/core';
-//import { CoffeeLabelProviderContribution } from './ComparisonLabelProvider';
 import { bindViewContribution } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { ComparisonContribution } from './comparison-contribution';
+import { TreeComparisonContribution } from './tree-comparison-contribution';
 import { BackendClient, ComparisonBackendService, COMPARISON_BACKEND_PATH } from '../common/protocol';
-import { TreeComparisonConfiguration } from './tree-comparison-configuration';
-import { GraphicalComparisonOpener } from './graphical-comparison-opener';
-
+import { ComparisonExtensionConfiguration } from './comparison-extension-configuration';
+import { GraphicalComparisonOpener } from './graphical/graphical-comparison-opener';
 
 export default new ContainerModule(bind => {
     console.log("starting frontend");
 
     // compare option in file system
     bind(GraphicalComparisonOpener).toSelf().inSingletonScope();
-    bind(TreeComparisonConfiguration).toSelf().inSingletonScope();
-    bindViewContribution(bind, ComparisonContribution);
-    bind(TabBarToolbarContribution).toService(ComparisonContribution);
+    bind(ComparisonExtensionConfiguration).toSelf().inSingletonScope();
+    bindViewContribution(bind, TreeComparisonContribution);
+    bind(TabBarToolbarContribution).toService(TreeComparisonContribution);
     
 
      // Bind Theia IDE contributions
     //(LabelProviderContribution).to(CoffeeLabelProviderContribution);
-    //bind(OpenHandler).to(ComparisonTreeEditorContribution);
-    //bind(MenuContribution).to(ComparisonTreeEditorContribution);
-    //bind(CommandContribution).to(ComparisonTreeEditorContribution);
     bind(LabelProviderContribution).to(ComparisonTreeLabelProvider);
 
     // bind to themselves because we use it outside of the editor widget, too.

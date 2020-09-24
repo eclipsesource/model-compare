@@ -71,7 +71,10 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
         return;
       }
       this.instanceData = response.overviewTree;
+      this.myTreeWidgetModel1.treeTitle = "Left: " + this.options.left.replace(/^.*[\\\/]/, '');
+      this.myTreeWidgetModel2.treeTitle = "Right: " + this.options.right.replace(/^.*[\\\/]/, '');
 
+      this.myTreeWidgetOverview.treeTitle = "Differences overview:";
       this.myTreeWidgetOverview
       .setData({ error: false, data: this.instanceData})
       .then(() => this.myTreeWidgetOverview.selectFirst());
@@ -188,10 +191,10 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget {
   }
 
   protected configureTitle(title: Title<Widget>): void {
-    title.label = "Comparison Tree Editor";
+    title.label = "Comparison Tree View";
     title.caption = ComparisonTreeEditorWidget.WIDGET_LABEL;
     title.closable = true;
-    //title.iconClass = 'fa coffee-icon dark-purple';
+    title.iconClass = 'fas fa-columns file-icon';
   }
   
 }
@@ -200,4 +203,3 @@ export namespace ComparisonTreeEditorWidget {
   export const WIDGET_ID = 'json-forms-comparison-tree-editor';
   export const EDITOR_ID = 'com.eclipsesource.comparison.editor';
 }
-

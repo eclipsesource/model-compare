@@ -25,6 +25,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@eclipse-glsp/theia-integration": "next",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
     "eslint": "^6.8.0",
@@ -45,8 +46,10 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/comparison-extension-frontend-module",
+      "frontend": "lib/browser/tree-comparison-extension-frontend-module",
       "backend": "lib/node/comparison-extension-backend-module"
+    }, {
+      "frontend": "lib/browser/graphical/graphical-comparison-extension-frontend-module"
     }
   ]
 }

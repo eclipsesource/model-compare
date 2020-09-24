@@ -1,4 +1,3 @@
-import URI from '@theia/core/lib/common/uri';
 /********************************************************************************
  * Copyright (C) 2018 TypeFox and others.
  *
@@ -14,21 +13,24 @@ import URI from '@theia/core/lib/common/uri';
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, inject } from 'inversify';
-import { ComparisonBackendService } from '../common/protocol';
+import { injectable } from 'inversify';
+import URI from '@theia/core/lib/common/uri';
+import * as path from "path";
 
 @injectable()
-export class GraphicalComparisonOpener {
+export class ComparisonExtensionConfiguration {
+    canHandle(uri: URI): boolean {
+      return uri.path.ext === '.eam';
+    }
 
-  constructor(
-    @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService) {
-  }
+    supportGraphicalComparison(): boolean {
+      return true;
+    }
 
-  showWidgets(left: URI, right: URI) {
-    throw Error("Needs to be implemented in the specific editors");
-  }
+    getComparisonJarPath(): string {
+      console.log("dir: " + __dirname);
+      return path.resolve(__dirname, '..', '..', 'server', 'model-comparison-1.0.jar');
+    }
 
-  getHighlights(left: string, right: string): any {
-    return this.comparisonBackendService.getHighlight(left, right);
-  }
+    // metamodel path & package class ?
 }

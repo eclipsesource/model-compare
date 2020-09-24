@@ -16,14 +16,14 @@
 import { RawProcess, RawProcessFactory } from "@theia/process/lib/node/raw-process";
 import { inject, injectable } from "inversify";
 import { ILogger } from "@theia/core";
-import { TreeComparisonConfiguration } from "../browser/tree-comparison-configuration";
+import { ComparisonExtensionConfiguration } from "../browser/comparison-extension-configuration";
 
 @injectable()
 export class ComparisonServerExtensionConnection {
 
   constructor(
     @inject(RawProcessFactory) protected readonly processFactory: RawProcessFactory,
-    @inject(TreeComparisonConfiguration) protected readonly config: TreeComparisonConfiguration,
+    @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration,
     @inject(ILogger) private readonly logger: ILogger) { }
 
   public compare(left: string, right: string, origin: string): Promise<string> {
