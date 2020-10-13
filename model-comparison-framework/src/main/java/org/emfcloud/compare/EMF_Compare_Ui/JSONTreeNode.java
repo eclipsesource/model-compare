@@ -3,24 +3,18 @@ package org.emfcloud.compare.EMF_Compare_Ui;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JSONTreeNode {
+public class JSONTreeNode extends TreeNodeCollection {
 	private String eClass = "";
 	private String name = "";
 	private String icon = "";
 	private String color = "";
 	private String uuid = "";
-	private List<JSONTreeNode> children = new ArrayList<>();
+	private String type = "";
 	
 	public JSONTreeNode(String eClass, String name) {
 		super();
 		this.eClass = eClass;
 		this.name = name;
-	}
-	
-	public void addChild(JSONTreeNode node) {
-		if (node != null) {
-			children.add(node);
-		}
 	}
 	
 	public void setIcon(String icon) {
@@ -39,8 +33,20 @@ public class JSONTreeNode {
 		return this.uuid;
 	}
 	
-	public int getChildrenCount() {
-		return children.size();
+	public void setTypeMatch() {
+		this.type = "match";
+	}
+	
+	public void setTypeDiff() {
+		this.type = "diff";
+	}
+	
+	public void setTypeConflict() {
+		this.type = "conflict";
+	}
+	
+	public String getType() {
+		return this.type;
 	}
 
 	@Override
@@ -64,6 +70,8 @@ public class JSONTreeNode {
 		sb.append(",\n");
 		sb.append(prefix_plus).append("\"").append("uuid").append("\": ").append("\"").append(JSONCompareResponse.escapeJSON(uuid)).append("\"");
 		sb.append(",\n");
+		sb.append(prefix_plus).append("\"").append("type").append("\": ").append("\"").append(JSONCompareResponse.escapeJSON(type)).append("\"");
+		sb.append(",\n");
 		sb.append(prefix_plus).append("\"").append("children").append("\": ").append("[");
 		if (children.size() > 0) {
 			sb.append("\n");
@@ -76,14 +84,6 @@ public class JSONTreeNode {
 		}
 		sb.append("]\n");
 		sb.append(prefix).append("}\n");
-		return sb.toString();
-	}
-	
-	private String getTabs(int n) {
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i<n; i++) {
-			sb.append("\t");
-		}
 		return sb.toString();
 	}
 }

@@ -105,6 +105,21 @@
 		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare.edit_4.3.1.201909101346.jar</systemPath>
 		</dependency>
 		
+		<dependency>
+		    <groupId>org.eclipse.emf</groupId>
+		    <artifactId>compare.ide</artifactId>
+		    <version>3.4.3</version>
+		    <scope>system</scope>
+		    <systemPath>${project.basedir}/lib/org.eclipse.emf.compare.ide_3.4.3.202008311302.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.core</groupId>
+		    <artifactId>org.eclipse.core.resources</artifactId>
+		    <version>3.7.100</version>
+		</dependency>
+		
+		
 		
 		<!-- for JSON conversion ??? -->
 		<dependency>

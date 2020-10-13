@@ -81,7 +81,9 @@ export class TreeComparisonContribution extends AbstractViewContribution<Compari
                     const options: ComparisonTreeEditorWidgetOptions = {
                         left: dialog.getLeft(),
                         right: dialog.getRight(),
-                        origin: dialog.getOrigin()
+                        origin: dialog.getOrigin(),
+                        merges: [],
+                        conflicts: []
                     }
                     this.showTreeWidget(options);
                 });

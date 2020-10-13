@@ -19,10 +19,11 @@ export const ComparisonBackendService = Symbol('ComparisonBackendService');
 export const COMPARISON_BACKEND_PATH = '/services/comparisonBackend';
 
 export interface ComparisonBackendService extends JsonRpcServer<BackendClient> {
-    getNewComparison(left: string, right: string, origin: string): Promise<string>;
+    getNewComparison(left: string, right: string, origin: string, merges: string): Promise<string>;
     getHighlight(left: string, right: string): Promise<string>;
-
+    merge(left: string, right: string, origin: string, merges: string, mergeConflicts: string): Promise<string>;
 }
+
 export const BackendClient = Symbol('BackendClient');
 export interface BackendClient {
     getName(): Promise<string>;

@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.emfcloud.compare.EMF_Compare_Ui.EObjectChangeMapping;
 import org.emfcloud.compare.EMF_Compare_Ui.JSONCompareResponse;
 import org.emfcloud.compare.EMF_Compare_Ui.JSONTreeNode;
 import org.emfcloud.compare.EMF_Compare_Ui.ToJSONHelper;
+import org.emfcloud.compare.EMF_Compare_Ui.TreeNodeCollection;
 
 import EAM_Metamodel.EAM_MetamodelPackage;
 
@@ -57,6 +59,8 @@ import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.Equivalence;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.MatchResource;
+import org.eclipse.emf.compare.ide.EMFCompareIDEPlugin;
+import org.eclipse.emf.compare.ide.utils.ResourceUtil;
 import org.eclipse.emf.compare.impl.AttributeChangeImpl;
 import org.eclipse.emf.compare.internal.spec.AttributeChangeSpec;
 import org.eclipse.emf.compare.internal.spec.EObjectUtil;
@@ -78,9 +82,13 @@ public class Model_Compare {
 	private static final String ARG_LEFT = "-left";
 	private static final String ARG_RIGHT = "-right";
 	private static final String ARG_ORIGIN = "-origin";
+	private static final String ARG_MERGES = "-merges";
+	private static final String ARG_CONFLICTS = "-conflicts";
 	
 	private static final String OPERATION_COMPARISON = "comparison";
 	private static final String OPERATION_HIGHLIGHT = "highlight";
+	private static final String OPERATION_MERGE = "merge";
+
 
 	static {
 		validArgs = new ArrayList<String>();
@@ -88,6 +96,8 @@ public class Model_Compare {
 		validArgs.add(ARG_LEFT);
 		validArgs.add(ARG_RIGHT);
 		validArgs.add(ARG_ORIGIN);
+		validArgs.add(ARG_MERGES);
+		validArgs.add(ARG_CONFLICTS);
 	}
 	
 	private static void printArgs() {
@@ -98,15 +108,19 @@ public class Model_Compare {
 	}
 
 	public static void main(String[] args) {
-		args = new String[6];
+		args = new String[8];
 		args[0] = ARG_OPERATION;
 		args[1] = OPERATION_COMPARISON;
 		args[2] = ARG_LEFT;
-		args[3] = "file:///c%3A/Users/ldkpr/Documents/Studium/Master_Thesis/ws/model-compare/model-comparison-framework/data/diagram.eam";
+		args[3] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram.eam";
 		args[4] = ARG_RIGHT;
-		args[5] = "file:///c%3A/Users/ldkpr/Documents/Studium/Master_Thesis/ws/model-compare/model-comparison-framework/data/diagram_new.eam";
-		//args[6] = ARG_ORIGIN;
-		//args[7] = "file:///c%3A/Users/ldkpr/Documents/Studium/Master_Thesis/ws/eclipse_ws/model-comparison-framework/data/diagram.eam";
+		args[5] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram_new.eam";
+		args[6] = ARG_ORIGIN;
+		args[7] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram_origin.eam";
+		//args[6] = ARG_TARGET;
+		//args[7] = "all";
+		//args[8] = ARG_DIRECTION;
+		//args[9] = "left";
 		
 		Map<String, String> data = new HashMap<String, String>();
 		if (args.length < 2) {
@@ -139,6 +153,8 @@ public class Model_Compare {
 			compare(data);
 		} else if (data.get(ARG_OPERATION).equals(OPERATION_HIGHLIGHT)) {
 			highlight(data);
+		} else if (data.get(ARG_OPERATION).equals(OPERATION_MERGE)) {
+			merge(data);
 		} else {
 			throw new RuntimeException("Unknown operation argument:  " + data.get(ARG_OPERATION));
 		}
@@ -169,93 +185,52 @@ public class Model_Compare {
 			// comparing
 			Comparison comparison = EMFCompare.builder().build().compare(scope);
 			
+			// apply merges
+			applyAllMerges(data, comparison);
+			
+			// compare after merge
+			comparison = EMFCompare.builder().build().compare(scope);
+			
 			EObjectChangeMapping changeMapping = new EObjectChangeMapping();
-			
 			JSONCompareResponse root = new JSONCompareResponse();
+			TreeNodeCollection nodes = new TreeNodeCollection();
 			
-			List<TreeNode> list = new DifferenceGroup().buildOverviewTree(comparison);
-			for(TreeNode node : list) {
-				JSONTreeNode n = getOverview(node, changeMapping);
-				root.setOverviewTree(n.toString());
-				break;
+			List<TreeNode> conflictNodeList = new DifferenceGroup().getConflicts(comparison);
+			if (conflictNodeList.size() > 0) {
+				JSONTreeNode conflicts = new JSONTreeNode("conflicts", "Conflicts");
+				conflicts.setIcon("fas fa-exclamation red");
+				for (TreeNode node : conflictNodeList) {
+					JSONTreeNode n = getOverview(node, changeMapping);
+					conflicts.addChild(n);
+				}
+				
+				nodes.addChild(conflicts);
 			}
 			
-			root.setLeftTree(buildTree(resourceSetLeft, changeMapping).toString());
-			root.setRightTree(buildTree(resourceSetRight, changeMapping).toString());
+			List<TreeNode> diffNodeList = new DifferenceGroup().getDifferences(comparison);
+			for (TreeNode node : diffNodeList) {
+				JSONTreeNode n = getOverview(node, changeMapping);
+				nodes.addChild(n);
+			}
+			
+			root.setOverviewTree(nodes.toString());
+			TreeNodeCollection leftTree = new TreeNodeCollection();
+			leftTree.addChild(buildTree(resourceSetLeft, changeMapping));
+			root.setLeftTree(leftTree.toString());
+			TreeNodeCollection rightTree = new TreeNodeCollection();
+			rightTree.addChild(buildTree(resourceSetRight, changeMapping));
+			root.setRightTree(rightTree.toString());
 			root.setUuidConnection(changeMapping.getConnectionsString());
 			
 			// this will be read by the client
 			System.out.print(root);
-			
-			
-			// cancel rest of code
-			int one = 1;
-			if (one == 1) {
-				return;
-			}
-
-			
-			
-			
-			
-			
-			
-			
-			List<Diff> differences = comparison.getDifferences();
-			
-			System.out.println("Differences:");
-			for (Diff diff : differences) {
-				System.out.println(diff);
-				
-				/*
-				if (diff instanceof ReferenceChangeSpec) {
-					ReferenceChangeSpec change = (ReferenceChangeSpec) diff;
-					if (diff.getKind().equals(DifferenceKind.MOVE)) {
-						System.out.println(diff.getKind() + ": " + getLabelName(change.getValue()) + " to " + getLabelName(change.getMatch().getLeft()));
-					} else if (diff.getKind().equals(DifferenceKind.ADD)) {
-						if (change.getMatch().getRight() instanceof EPackage && change.getMatch().getLeft() instanceof EPackage) {
-							System.out.println(diff.getKind() + ": " + getLabelName(change.getValue()));
-						} else {
-							System.out.println(diff.getKind() + ": Edge " + getLabelName(change.getMatch().getLeft()) + " --> " + getLabelName(change.getValue()));
-						}
-					} else if (diff.getKind().equals(DifferenceKind.CHANGE)) {
-						
-					}
-				
-				} else if (diff instanceof AttributeChangeSpec) {
-					AttributeChangeSpec change = (AttributeChangeSpec) diff;
-					
-					EDataType eAttributeType = change.getAttribute().getEAttributeType();
-					final String valueString;
-					if (eAttributeType.isSerializable()) {
-						valueString = EcoreUtil.convertToString(eAttributeType, change.getValue());
-					} else {
-						valueString = change.getValue().toString();
-					}
-					System.out.println(diff.getKind() + ": " + change.getAttribute().getEContainingClass().getName() + " " + change.getAttribute().getName() + " to " + valueString);
-				} else {
-					
-					
-
-				}
-				*/
-
-			}
-			
-			//System.out.println("Merging");
-			// Let's merge every single diff
-			//IMerger.Registry mergerRegistry = new IMerger.RegistryImpl();
-			
-			//IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
-			//IBatchMerger merger = new BatchMerger(mergerRegistry);
-			//merger.copyAllLeftToRight(differences, new BasicMonitor());
 			
 		} else {
 			System.out.print(new JSONCompareResponse("Left or Right file missing or not readable!"));
 		}
 	}
 	
-	public static EObjectChangeMapping gethighliteMapping(Map<String, String> data) {
+	private static void highlight(Map<String, String> data) {
 		URI leftURI = getUri(data.get(ARG_LEFT));
 		URI rightURI = getUri(data.get(ARG_RIGHT));
 		
@@ -276,20 +251,98 @@ public class Model_Compare {
 			
 			EObjectChangeMapping changeMapping = new EObjectChangeMapping();
 						
-			List<TreeNode> list = new DifferenceGroup().buildOverviewTree(comparison);
+			List<TreeNode> list = new DifferenceGroup().getDifferences(comparison);
 			for (TreeNode node : list) {
 				getOverview(node, changeMapping);
 			}
 			
-			return changeMapping;
+			// this will be read by the client
+			System.out.print(changeMapping.getHighlightString());
 		} else {
 			System.err.print("Left or Right file missing or not readable!");
-			return new EObjectChangeMapping();
 		}
 	}
 	
-	private static void highlight(Map<String, String> data) {
-		System.out.print(gethighliteMapping(data).getHighlightString());
+	private static void applyMergeInformation(String type, String target, String direction, Comparison comparison) {
+		IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
+	    IBatchMerger merger = new BatchMerger(mergerRegistry);
+		if (target.equals("all")) {
+		    if (direction.equals("left")) {
+		    	merger.copyAllRightToLeft(comparison.getDifferences(), new BasicMonitor());
+		    } else {
+		    	merger.copyAllLeftToRight(comparison.getDifferences(), new BasicMonitor());
+		    }
+		} else {
+			for (Diff diff : comparison.getDifferences()) {
+				JSONTreeNode node = ToJSONHelper.diffToJSONTree(diff, new EObjectChangeMapping());
+				if (node.getUuid().equals(target)) {
+					if (direction.equals("left")) {
+				    	merger.copyAllRightToLeft(List.of(diff), new BasicMonitor());
+				    } else {
+				    	merger.copyAllLeftToRight(List.of(diff), new BasicMonitor());
+				    }
+					break;
+				}
+			}
+		}
+	}
+	
+	private static void applyAllMerges(Map<String, String> data, Comparison comparison) {
+		if (data.get(ARG_MERGES) != null) {
+			String[] merges = data.get(ARG_MERGES).split(",");
+			if (merges.length > 0 && merges[0].length() > 0) {
+				for (String merge : merges) {
+					String[] info = merge.split(";");
+					if (info.length == 3) {
+						applyMergeInformation(info[0], info[1], info[2], comparison);
+					}
+				}
+			}
+		}
+	}
+	
+	private static void merge(Map<String, String> data) {
+		URI leftURI = getUri(data.get(ARG_LEFT));
+		URI rightURI = getUri(data.get(ARG_RIGHT));
+		URI originURI = getUri(data.get(ARG_ORIGIN));
+		
+		if (isValidFile(leftURI) && isValidFile(rightURI)) {
+			// creates the resourceSets where we will load the models
+			final ResourceSet resourceSetLeft = new ResourceSetImpl();
+			final ResourceSet resourceSetRight = new ResourceSetImpl();
+			final ResourceSet resourceSetOrigin = new ResourceSetImpl();
+			
+			// loading resources
+			boolean originProvided = isValidFile(originURI);
+			load(leftURI, resourceSetLeft);
+			load(rightURI, resourceSetRight);
+			if (originProvided) {
+				load(originURI, resourceSetOrigin);
+			}
+			
+			// setting scope
+			IComparisonScope scope = new DefaultComparisonScope(resourceSetLeft, resourceSetRight, (originProvided) ? resourceSetOrigin : null);
+			
+			// comparing
+			Comparison comparison = EMFCompare.builder().build().compare(scope);
+			
+			EcoreUtil.resolveAll(resourceSetLeft);
+			EcoreUtil.resolveAll(resourceSetRight);
+			EcoreUtil.resolveAll(resourceSetOrigin);
+			
+			// merge
+			applyAllMerges(data, comparison);
+			
+			// save
+			ResourceUtil.saveAllResources(resourceSetLeft, Collections.emptyMap());
+			ResourceUtil.saveAllResources(resourceSetRight, Collections.emptyMap());
+			ResourceUtil.saveAllResources(resourceSetOrigin, Collections.emptyMap());
+			
+			// this will be read by the client
+			System.out.println("Merged");
+		} else {
+			System.err.print("Left or Right file missing or not readable!");
+		}
 	}
 	
 	private static JSONTreeNode getOverview(TreeNode treeNode, EObjectChangeMapping changeMapping) {

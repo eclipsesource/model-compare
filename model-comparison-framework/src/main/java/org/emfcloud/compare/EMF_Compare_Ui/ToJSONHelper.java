@@ -97,6 +97,7 @@ public class ToJSONHelper {
 					JSONTreeNode node = new JSONTreeNode("match", getLabelName(eObject));
 					node.setUuid(uuid);
 					node.setIcon("fas fa-stream");
+					node.setTypeMatch();
 					return node;
 				}
 			}
@@ -104,17 +105,22 @@ public class ToJSONHelper {
 		return null;
 	}
 	
-	private static JSONTreeNode diffToJSONTree(Diff diff, EObjectChangeMapping changeMapping) {
+	public static JSONTreeNode diffToJSONTree(Diff diff, EObjectChangeMapping changeMapping) {
 		if (diff instanceof ReferenceChange) {	
 			ReferenceChange change = (ReferenceChange) diff;
 			
 			//EObject effectiveAncestor = change.getMatch().getOrigin();
+			EObject effectiveAncestor = change.getMatch().getOrigin();
 			EObject effectiveLeft = change.getMatch().getLeft();
 			EObject effectiveRight = change.getMatch().getRight();
 			
 			//check if it was a reference or a real node change TODO: has 'node' always featureId = 0 ?
 			String uuidLeft = null;
+			String uuidLeftReference = null;
 			String uuidRight = null;
+			String uuidRightReference = null;
+			String uuidOrigin = null;
+			String uuidOriginReference = null;
 			
 			
 			/*
@@ -147,6 +153,7 @@ public class ToJSONHelper {
 			if (effectiveLeft != null) {
 				if (effectiveLeft.eContents().contains(change.getValue())) {
 					uuidLeft = UUID_Provider.getUUID(change.getValue());
+					uuidLeftReference = UUID_Provider.getUUID(effectiveLeft, change.getReference(), change.getValue());
 				} else {
 					uuidLeft = UUID_Provider.getUUID(effectiveLeft, change.getReference(), change.getValue());
 				}
@@ -154,8 +161,17 @@ public class ToJSONHelper {
 			if (effectiveRight != null) {
 				if (effectiveRight.eContents().contains(change.getValue())) {
 					uuidRight = UUID_Provider.getUUID(change.getValue());
+					uuidRightReference = UUID_Provider.getUUID(effectiveRight, change.getReference(), change.getValue());
 				} else {
 					uuidRight = UUID_Provider.getUUID(effectiveRight, change.getReference(), change.getValue());
+				}
+			}
+			if (effectiveAncestor != null) {
+				if (effectiveAncestor.eContents().contains(change.getValue())) {
+					uuidOrigin = UUID_Provider.getUUID(change.getValue());
+					uuidOriginReference = UUID_Provider.getUUID(effectiveAncestor, change.getReference(), change.getValue());
+				} else {
+					uuidOrigin = UUID_Provider.getUUID(effectiveAncestor, change.getReference(), change.getValue());
 				}
 			}
 						
@@ -186,9 +202,19 @@ public class ToJSONHelper {
 			}
 			*/
 			
+			if (uuidLeftReference != null && !uuidLeftReference.equals(uuidRightReference)) {
+				changeMapping.addConnection(uuidLeftReference, uuidRightReference);
+			}
 			if (uuidLeft != null && !uuidLeft.equals(uuidRight)) {
 				changeMapping.addConnection(uuidLeft, uuidRight);
+			} else if (uuidLeft != null && uuidOrigin != null) {
+				changeMapping.addConnection(uuidLeft, uuidOrigin);
+			} else if (uuidRight != null && uuidOrigin != null) {
+				changeMapping.addConnection(uuidOrigin, uuidRight);
 			}
+			
+			changeMapping.addDifference(uuidLeftReference, change.getKind());
+			changeMapping.addDifference(uuidRightReference, change.getKind());
 			changeMapping.addDifference(uuidLeft, change.getKind());
 			changeMapping.addDifference(uuidRight, change.getKind());
 
@@ -197,6 +223,12 @@ public class ToJSONHelper {
 			JSONTreeNode node = new JSONTreeNode("diff", getLabelName(change.getValue()) + " [" + change.getReference().getName() + " " + differenceKindToString(diff.getKind()) + "]");
 			node.setUuid(uuid);
 			node.setIcon(differenceKindToIcon(diff.getKind()));
+			
+			if (diff.getConflict() != null) {
+				node.setTypeConflict();
+			} else {
+				node.setTypeDiff();
+			}
 
 			return node;
 			
@@ -216,10 +248,15 @@ public class ToJSONHelper {
 				if (effectiveRight != null) {
 					uuidRight = UUID_Provider.getUUID(effectiveRight, change.getAttribute());
 					changeMapping.addConnection(uuidLeft, uuidRight);
+				} else if (effectiveAncestor != null) {
+					changeMapping.addConnection(uuidLeft, UUID_Provider.getUUID(effectiveAncestor, change.getAttribute()));
 				}
 			} else {
 				if (effectiveRight != null) {
 					uuid = UUID_Provider.getUUID(effectiveRight, change.getAttribute());
+					if (effectiveAncestor != null) {
+						changeMapping.addConnection(UUID_Provider.getUUID(effectiveAncestor, change.getAttribute()), uuid);
+					}
 				} else {
 					if (effectiveAncestor != null) {
 						uuid = UUID_Provider.getUUID(effectiveAncestor, change.getAttribute());
@@ -235,6 +272,13 @@ public class ToJSONHelper {
 			JSONTreeNode node = new JSONTreeNode("diff", change.getValue() + " [" + change.getAttribute().getName() + " " + differenceKindToString(diff.getKind()) + "]");
 			node.setUuid(uuid);
 			node.setIcon(differenceKindToIcon(diff.getKind()));
+			
+			if (diff.getConflict() != null) {
+				node.setTypeConflict();
+			} else {
+				node.setTypeDiff();
+			}
+			
 			return node;
 			
 		} else if (diff instanceof FeatureMapChange) {

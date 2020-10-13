@@ -18,6 +18,8 @@ import { injectable } from 'inversify';
 
 import { Widget, BaseWidget, Message, StatefulWidget, SplitPanel, Title } from '@theia/core/lib/browser';
 import { GLSPDiagramWidget } from "@eclipse-glsp/theia-integration/lib/browser";
+import { FitToScreenAction } from '@eclipse-glsp/client';
+import { DiagramWidget } from "sprotty-theia";
 
 export const GraphicalComparisonWidgetOptions = Symbol(
     'GraphicalComparisonWidgetOptions'
@@ -28,8 +30,9 @@ export interface GraphicalComparisonWidgetOptions {
 }
 
 @injectable()
-export class GraphicalComparisonWidget extends BaseWidget implements StatefulWidget {
+export class GraphicalComparisonWidget extends BaseWidget implements StatefulWidget{
 
+    protected lastFocusLeft = true;
     protected splitPanel: SplitPanel;
     protected options: GraphicalComparisonWidgetOptions;
 
@@ -60,6 +63,18 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         this.configureTitle(this.title);
         this.update();
         this.activate();
+        this.options.left.getSvgElement().then(_ => {
+            this.options.left.actionDispatcher.dispatch(new FitToScreenAction([]));
+        });
+        this.options.right.getSvgElement().then(_ => {
+            this.options.right.actionDispatcher.dispatch(new FitToScreenAction([]));
+        });
+        this.options.left.node.addEventListener('focusin', (event) => {
+            this.lastFocusLeft = true;
+        });
+        this.options.right.node.addEventListener('focusin', (event) => {
+            this.lastFocusLeft = false;
+        });
     }
 
     protected onResize(_msg: any): void {
@@ -94,6 +109,17 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         title.caption = GraphicalComparisonWidget.WIDGET_LABEL;
         title.closable = true;
         title.iconClass = 'fas fa-columns file-icon';
+    }
+
+    get diagramWidget(): DiagramWidget {
+        if (this.options) {
+            if (this.lastFocusLeft) {
+                return this.options.left;
+            } else {
+                return this.options.right;
+            }
+        }
+        return undefined;
     }
 }
 

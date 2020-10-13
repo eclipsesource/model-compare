@@ -26,7 +26,7 @@ export class ComparisonServerExtensionConnection {
     @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration,
     @inject(ILogger) private readonly logger: ILogger) { }
 
-  public compare(left: string, right: string, origin: string): Promise<string> {
+  public compare(left: string, right: string, origin: string, merges: string): Promise<string> {
     const jarPath = this.config.getComparisonJarPath();
     if (jarPath.length === 0) {
         throw new Error('model-comparison jar not found');
@@ -40,7 +40,8 @@ export class ComparisonServerExtensionConnection {
         '-operation', 'comparison',
         '-left', left,
         '-right', right,
-        '-origin', origin
+        '-origin', origin,
+        '-merges', merges
     );
 
     return new Promise(resolve => {
@@ -82,6 +83,49 @@ export class ComparisonServerExtensionConnection {
         '-operation', 'highlight',
         '-left', left,
         '-right', right
+    );
+
+    return new Promise(resolve => {
+        const process = this.spawnProcess(command, args);
+        if (process === undefined || process.process === undefined || process === null || process.process === null) {
+            resolve('Process not spawned');
+            return;
+        }
+
+        let out = "";
+        const stdout = process.process.stdout;
+        if (stdout) {
+          stdout.on('data', data => {
+            out += data;
+          });
+        }
+
+        process.process.on('exit', (code: any) => {
+          switch (code) {
+              case 0: resolve(out); break;
+              case -10: resolve('Custom ERROR (TODO)'); break;
+              default: resolve('UNKNOWN ERROR'); break;
+          }
+        });
+    });
+  }
+
+  public merge(left: string, right: string, origin: string, merges: string, mergeConflicts: string): Promise<string> {
+    const jarPath = this.config.getComparisonJarPath();
+    if (jarPath.length === 0) {
+        throw new Error('model-comparison jar not found');
+    }
+
+    const command = 'java';
+    const args: string[] = [];
+
+    args.push(
+        '-jar', jarPath,
+        '-operation', 'merge',
+        '-left', left,
+        '-right', right,
+        '-origin', origin,
+        '-merges', merges
     );
 
     return new Promise(resolve => {

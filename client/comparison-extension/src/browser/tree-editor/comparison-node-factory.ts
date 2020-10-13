@@ -86,12 +86,15 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
     }   
 
     mapDataToNodes(treeData: TreeEditor.TreeData): TreeEditor.Node[] {
-        const node = this.mapData(treeData.data);
-        if (node) {
-            console.log("nodes created");
-            return [node];
-        }
-        return [];
+       const nodes: TreeEditor.Node[] = [];
+        (<any[]> treeData.data).forEach(data => {
+            const node = this.mapData(data);
+            if (node) {
+                console.log("nodes created");
+                nodes.push(node);
+            }
+        });
+        return nodes;
     }
 
     mapData(data: any, parent?: TreeEditor.Node | undefined, property?: string | undefined, indexOrKey?: string | number | undefined): TreeEditor.Node {
@@ -101,7 +104,7 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             return undefined;
         }
 
-        console.log(JSON.stringify(data));
+        //console.log(JSON.stringify(data));
 
         let decorationData = {fontData: {}};
         if (data.color) {
@@ -122,7 +125,7 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             }
         };
 
-        console.log("created: " + this.getType(data.eClass, data));
+        //console.log("created: " + this.getType(data.eClass, data));
         
         // containments
         if (parent) {

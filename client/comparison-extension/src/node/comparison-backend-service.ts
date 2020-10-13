@@ -24,9 +24,10 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
     constructor(
         @inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) { }
 
-    getNewComparison(left: string, right: string, origin: string): Promise<string>{
+    getNewComparison(left: string, right: string, origin: string, merges: string): Promise<string>{
+        if (origin.trim() === "") origin = "undefined";
         return new Promise((resolve, reject) => {
-            this.serverConnection.compare(left, right, origin).then(response => {
+            this.serverConnection.compare(left, right, origin, merges).then(response => {
                 resolve(response);
             }).catch(err => reject(err));
         });
@@ -35,6 +36,15 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
     getHighlight(left: string, right: string): Promise<string>{
         return new Promise((resolve, reject) => {
             this.serverConnection.highlight(left, right).then(response => {
+                resolve(response);
+            }).catch(err => reject(err));
+        });
+    }
+
+    merge(left: string, right: string, origin: string, merges: string, mergeConflicts: string): Promise<string> {
+        if (origin.trim() === "") origin = "undefined";
+        return new Promise((resolve, reject) => {
+            this.serverConnection.merge(left, right, origin, merges, mergeConflicts).then(response => {
                 resolve(response);
             }).catch(err => reject(err));
         });

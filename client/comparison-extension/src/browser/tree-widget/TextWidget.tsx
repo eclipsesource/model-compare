@@ -8,33 +8,41 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR MIT
  ********************************************************************************/
-import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import * as React from 'react';
 import { injectable, postConstruct } from 'inversify';
-import { TREE_CLASS } from '@theia/core/lib/browser';
+import { ReactWidget } from '@theia/core/lib/browser';
 
 @injectable()
 export class TextWidget extends ReactWidget {
-    titleString: string;
+    //readonly host: HTMLElement;
+    protected text: string;
     
     constructor(text: string) {
         super();
-        this.id = 'text-widget';
-        this.title.label = text;
-        this.titleString = text;
+        this.id = 'text-test-widget';
+        this.addClass('small-widget-view');
         this.title.closable = true;
-        //this.addClass('hello-world-widget');
+        this.text = text;
 
+        /*
         this.scrollOptions = {
             suppressScrollX: true,
             minScrollbarLength: 35
         };
-        this.addClass(TREE_CLASS);
         this.node.tabIndex = 0;
+        this.host = document.createElement('div');
+        */
     }
+    
+    /*
+    protected onUpdateRequest(msg: Message): void {
+        super.onUpdateRequest(msg);
+        ReactDOM.render(<React.Fragment>{this.render()}</React.Fragment>, this.host);
+    }
+    */
 
     protected render(): React.ReactNode {
-        return <h3>{this.titleString}</h3>;
+        return <h3>{this.text}</h3>;
     }
 
     @postConstruct()

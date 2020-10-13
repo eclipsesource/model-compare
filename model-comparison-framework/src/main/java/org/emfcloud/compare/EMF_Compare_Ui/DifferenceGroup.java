@@ -10,6 +10,7 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.MatchResource;
@@ -29,10 +30,26 @@ import com.google.common.collect.Sets;
 
 public class DifferenceGroup implements Adapter {
 	
-	protected final Predicate<? super Diff> filter = e -> true;
+	//protected final Predicate<? super Diff> trueFilter = e -> true;
+	protected final Predicate<Diff> diffFilter = diff -> {
+		return diff.getConflict() == null;
+	};
+	
+	protected final Predicate<Diff> conflictFilter = diff -> {
+		return diff.getConflict() != null && !diff.getConflict().getKind().equals(ConflictKind.PSEUDO);
+	};
+	
+	public List<TreeNode> getDifferences(Comparison comparison) {
+		return buildOverviewTree(comparison, diffFilter);
+	}
+	
+	public List<TreeNode> getConflicts(Comparison comparison) {
+		return buildOverviewTree(comparison, conflictFilter);
+	}
+
 
 	
-	public List<TreeNode> buildOverviewTree(Comparison comparison) {
+	protected List<TreeNode> buildOverviewTree(Comparison comparison, Predicate<Diff> filter) {
 		
 		/*
 		ECrossReferenceAdapter crossReferenceAdapter = new ECrossReferenceAdapter() {
@@ -54,16 +71,16 @@ public class DifferenceGroup implements Adapter {
 		
 		
 		List<TreeNode> children = new ArrayList<TreeNode>();
-		children.addAll(buildMatchTrees(comparison));
+		children.addAll(buildMatchTrees(comparison, filter));
 		//children.addAll(buildMatchResourceTrees(comparison));
 		return children;
 	}
 	
 	
-	protected List<TreeNode> buildMatchTrees(Comparison comparison) {
+	protected List<TreeNode> buildMatchTrees(Comparison comparison, Predicate<Diff> filter) {
 		final List<TreeNode> matchTrees = new ArrayList<TreeNode>();
 		for (Match match : comparison.getMatches()) {
-			MatchNode matchNode = buildTree(match);
+			MatchNode matchNode = buildTree(match, filter);
 			if (matchNode != null) {
 				matchTrees.add(matchNode);
 			}
@@ -71,10 +88,10 @@ public class DifferenceGroup implements Adapter {
 		return matchTrees;
 	}
 	
-	protected MatchNode buildTree(Match match) {
+	protected MatchNode buildTree(Match match, Predicate<Diff> filter) {
 		MatchNode result = null;
 		MatchNode matchNode = createMatchNode(match);
-		populateMatchNode(matchNode);
+		populateMatchNode(matchNode, filter);
 		if (!matchNode.getChildren().isEmpty()) {
 			result = matchNode;
 		}
@@ -87,16 +104,26 @@ public class DifferenceGroup implements Adapter {
 		return matchNode;
 	}
 	
-	protected void populateMatchNode(MatchNode matchNode) {
+	protected void populateMatchNode(MatchNode matchNode, Predicate<? super Diff> filter) {
 		Match match = matchNode.getMatch();
 		Multimap<Match, Diff> diffsBySubMatch = LinkedHashMultimap.create();
-		//for (Diff diff : filter(match.getDifferences(), filter)) {
 		for (Diff diff : match.getDifferences()) {
+			
+			if (!filter.apply(diff)) {
+				continue;
+			}
+			
 			// If a diff is part of a larger diff (is refined by), we don't want to add it to the tree. It
 			// will be added by the algorithm in a second step. This way we avoid duplication and all diffs
 			// that are part of a 'master' diff are grouped as children of this 'master' diff
 			if (mustDisplayAsDirectChildOfMatch(diff)) {
 				Match targetMatch = getTargetMatch(diff);
+				
+				// remove pseudo conflicts
+				if (diff.getConflict() != null && diff.getConflict().getKind().equals(ConflictKind.PSEUDO)) {
+					continue;
+				}
+				
 				if (match == targetMatch) {
 					addDiffNode(matchNode, diff);
 				} else if (match.getSubmatches().contains(targetMatch)) {
@@ -114,7 +141,7 @@ public class DifferenceGroup implements Adapter {
 				addDiffNode(subMatchNode, subMatchDiff);
 			}
 			diffsBySubMatch.removeAll(subMatch);
-			populateMatchNode(subMatchNode);
+			populateMatchNode(subMatchNode, filter);
 			if (!subMatchNode.getChildren().isEmpty()) {
 				matchNode.addSubMatchNode(subMatchNode);
 			}

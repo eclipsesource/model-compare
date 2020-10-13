@@ -16,6 +16,7 @@ import { injectable, postConstruct } from 'inversify';
 
 import { TreeEditor } from './interfaces';
 import { AddCommandProperty, MasterTreeWidget } from './master-tree-widget';
+import { TreeActionWidget } from './tree-action-widget';
 //import { TextWidget } from './TextWidget';
 
 @injectable()
@@ -25,6 +26,8 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     private splitPanelMain: SplitPanel;
     private splitPanelOverview: SplitPanel;
     private splitPanelModels: SplitPanel;
+    protected actionWidget: TreeActionWidget;
+    //private titleWidget: TextWidget;
 
     protected readonly onDirtyChangedEmitter = new Emitter<void>();
     get onDirtyChanged(): Event<void> {
@@ -49,6 +52,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.splitPanelMain = new SplitPanel();
         this.splitPanelOverview = new SplitPanel();
         this.splitPanelModels = new SplitPanel();
+        this.actionWidget = new TreeActionWidget(this);
         
         this.splitPanelMain.orientation = "vertical";
         this.splitPanelOverview.orientation = "horizontal";
@@ -60,6 +64,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel1.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetModel2.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetOverview.addClass(BaseTreeEditorWidget.Styles.TREE);
+        //this.titleWidget = new TextWidget("My fav Title ever xDD");
 
         this.toDispose.push(
             this.treeWidgetModel1.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel1, ev))
@@ -72,6 +77,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.toDispose.push(
             this.treeWidgetOverview.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetOverview, ev))
         );
+
         /*
         this.toDispose.push(
             this.treeWidget.onDelete(node => this.deleteNode(node))
@@ -148,11 +154,12 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     }: AddCommandProperty): void;
 
     protected onAfterAttach(msg: Message): void {
-        //this.splitPanelMain.addWidget(new TextWidget("Best Title Ever"));
+        //this.splitPanelMain.addWidget(this.titleWidget);
         this.splitPanelMain.addWidget(this.splitPanelOverview);
         this.splitPanelMain.addWidget(this.splitPanelModels);
 
         this.splitPanelOverview.addWidget(this.treeWidgetOverview);
+        this.splitPanelOverview.addWidget(this.actionWidget);
 
         this.splitPanelModels.addWidget(this.treeWidgetModel1);
         this.splitPanelModels.addWidget(this.treeWidgetModel2);
@@ -166,6 +173,10 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel1.activate();
         this.treeWidgetModel2.activate();
         this.treeWidgetOverview.activate();
+        this.actionWidget.activate();
+        this.actionWidget.update();
+        //this.titleWidget.activate();
+        //this.titleWidget.update();
         super.onAfterAttach(msg);
     }
 
@@ -191,6 +202,10 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     public save(): void {
         // do nothing by default
     }
+
+    public abstract merge(toLeft: boolean, all: boolean, conflict: boolean): void;
+    public abstract undoMerge(): void;
+    public abstract showGraphicalComparison(): void;
 
     /**
      * Configure this editor's title tab by configuring the given Title object.

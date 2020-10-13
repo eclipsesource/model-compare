@@ -20,8 +20,8 @@ import { Message } from '@theia/core/lib/browser';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 
 export const DIALOG_TITLE = 'Choose Left, Right, Origin';
-export const DIALOG_CLASS = 'orderDialog';
-export const DIALOG_LABEL_CLASS = 'orderDialogInput';
+export const DIALOG_CLASS = 'comparisonDialog';
+export const DIALOG_LABEL_CLASS = 'comparisonDialogInput';
 
 @injectable()
 export class ComparisonOrderDialog extends ReactDialog<void> {

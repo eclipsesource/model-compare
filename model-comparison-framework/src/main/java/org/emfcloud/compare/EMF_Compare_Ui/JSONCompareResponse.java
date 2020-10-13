@@ -5,7 +5,6 @@ public class JSONCompareResponse {
 	private String leftTree;
 	private String rightTree;
 	private String uuidConnection;
-	private String conflicts;
 	private String error;
 	
 	public JSONCompareResponse() {
@@ -23,7 +22,6 @@ public class JSONCompareResponse {
 		this.leftTree = leftTree;
 		this.rightTree = rightTree;
 		this.uuidConnection = uuidConnection;
-		this.conflicts = conflicts;
 		this.error = error;
 	}
 
@@ -59,14 +57,6 @@ public class JSONCompareResponse {
 		this.uuidConnection = uuidConnection;
 	}
 
-	public String getConflicts() {
-		return conflicts;
-	}
-
-	public void setConflicts(String conflicts) {
-		this.conflicts = conflicts;
-	}
-	
 	public static String escapeJSON(String raw) {
 	    String escaped = raw;
 	    escaped = escaped.replace("\\", "\\\\");
@@ -82,6 +72,11 @@ public class JSONCompareResponse {
 
 	public String toString() {
 		// TODO: escape JSON
+		String overviewTree = this.overviewTree;
+		if (overviewTree.matches("\\s*\\{\\s*\\}\\s*")) {
+			overviewTree = new JSONTreeNode("information", "< No differences detected for this comparison. >").toString();
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
 		sb.append("\"").append("overviewTree").append("\": ").append(overviewTree);
@@ -91,8 +86,6 @@ public class JSONCompareResponse {
 		sb.append("\"").append("rightTree").append("\": ").append(rightTree);
 		sb.append(",\n");
 		sb.append("\"").append("uuidConnection").append("\": ").append(uuidConnection);
-		sb.append(",\n");
-		sb.append("\"").append("conflicts").append("\": ").append("\"").append(conflicts).append("\"");
 		sb.append(",\n");
 		sb.append("\"").append("error").append("\": ").append("\"").append(escapeJSON(error)).append("\"");
 		sb.append("\n");
