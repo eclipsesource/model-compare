@@ -1,7 +1,7 @@
-import '../../../style/forms.css';
+//import '../../../style/forms.css'; // causes bugs
 import '../../../style/index.css';
 import '../../../style/elements.css';
-import '@fortawesome/fontawesome-free/js/all.js';
+//import '@fortawesome/fontawesome-free/js/all.js'; // causes bugs
 
 import { ContainerModule } from 'inversify';
 import { bindViewContribution, WidgetFactory } from '@theia/core/lib/browser';

@@ -139,9 +139,7 @@ export class ComparisonModelService implements TreeEditor.ModelService {
             return schema;
         }
         // there is no type, try to guess
-        if (node.jsonforms.data.nodes) {
-            return comparisonSchema.definitions.node;
-        }
+        
         return undefined;
     }
 
@@ -149,12 +147,7 @@ export class ComparisonModelService implements TreeEditor.ModelService {
         if (!type) {
             return undefined;
         }
-        const schema = Object.entries(comparisonSchema.definitions)
-            .map(entry => entry[1])
-            .find(
-                definition =>
-                    definition.properties && definition.properties.eClass.const === type
-            );
+        const schema = undefined;
         if (!schema) {
             this.logger.warn("Can't find definition schema for type " + type);
         }
@@ -214,6 +207,6 @@ export class ComparisonModelService implements TreeEditor.ModelService {
         return ComparisonModel.childrenMapping;
     }
     getNameForType(type: string): string {
-        return ComparisonModel.Type.name(type);
+        return type;
     }
 }

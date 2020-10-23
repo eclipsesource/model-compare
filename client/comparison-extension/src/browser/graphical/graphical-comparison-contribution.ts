@@ -80,7 +80,7 @@ export class GraphicalComparisonContribution extends AbstractViewContribution<Gr
                 const [left, right] = uris;
                 const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
                 dialog.open().then(() => {
-                    this.graphicalOpener.getHighlights(String(left), String(right)).then(async (highlights: any) => {
+                    this.graphicalOpener.getHighlights(dialog.getLeft(), dialog.getRight()).then(async (highlights: any) => {
                         const leftWidget = await this.graphicalOpener.getLeftDiagram(new URI(dialog.getLeft()), highlights);
                         const rightWidget = await this.graphicalOpener.getRightDiagram(new URI(dialog.getRight()), highlights);
                         const options: GraphicalComparisonWidgetOptions = {

@@ -37,18 +37,17 @@ export class ComparisonTreeLabelProvider implements LabelProviderContribution {
     if (data.eClass) {
       switch (data.eClass) {
         case ComparisonModel.Type.DiagramLandscape:
-        case ComparisonModel.Type.DiagramNode:
         case ComparisonModel.Type.DiagramNodeAttribute:
         case ComparisonModel.Type.DiagramEdge:
         case ComparisonModel.Type.DiagramEdgeAttribute:
         case ComparisonModel.Type.DiagramEdgeMember:
-        case 'match':
-        case 'diff':
-        case 'node':
-        case 'attribute':
-        case 'reference':
-        case 'conflicts':
-        case 'information':
+        case ComparisonModel.Type.DiagramMatch:
+        case ComparisonModel.Type.DiagramDiff:
+        case ComparisonModel.Type.DiagramNode:
+        case ComparisonModel.Type.DiagramAttribute:
+        case ComparisonModel.Type.DiagramReference:
+        case ComparisonModel.Type.DiagramConflicts:
+        case ComparisonModel.Type.DiagramInformation:
           return data.name || this.getTypeName(data.eClass);
         default:
           // TODO query title of schema

@@ -69,7 +69,7 @@ export class ComparisonServerExtensionConnection {
     });
   }
 
-  public highlight(left: string, right: string): Promise<string> {
+  public highlight(left: string, right: string, origin: string): Promise<string> {
     const jarPath = this.config.getComparisonJarPath();
     if (jarPath.length === 0) {
         throw new Error('model-comparison jar not found');
@@ -82,7 +82,8 @@ export class ComparisonServerExtensionConnection {
         '-jar', jarPath,
         '-operation', 'highlight',
         '-left', left,
-        '-right', right
+        '-right', right,
+        '-origin', origin
     );
 
     return new Promise(resolve => {

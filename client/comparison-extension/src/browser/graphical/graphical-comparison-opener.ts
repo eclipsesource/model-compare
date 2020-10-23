@@ -33,7 +33,7 @@ export class GraphicalComparisonOpener {
     throw Error("Needs to be implemented in the specific editors");
   }
 
-  getHighlights(left: string, right: string): any {
-    return this.comparisonBackendService.getHighlight(left, right);
+  getHighlights(left: string, right: string, origin: string = "undefined"): any {
+    return this.comparisonBackendService.getHighlight(left, right, origin);
   }
 }

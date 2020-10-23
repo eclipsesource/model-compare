@@ -51,7 +51,7 @@ export class TreeActionWidget extends ReactWidget {
             <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>🡒 Merge to right (keep left)</button><br/><br/>
             <br/>
             <b>Undo</b><br/>
-            <button onClick={() => this.parentView.undoMerge()}>Undo last action</button>
+            <button onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>Undo last action</button>
             {graphicalComparison}
         </div>;
     }

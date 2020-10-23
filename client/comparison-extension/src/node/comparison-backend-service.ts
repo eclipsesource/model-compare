@@ -33,9 +33,9 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
         });
     }
 
-    getHighlight(left: string, right: string): Promise<string>{
+    getHighlight(left: string, right: string, origin: string): Promise<string>{
         return new Promise((resolve, reject) => {
-            this.serverConnection.highlight(left, right).then(response => {
+            this.serverConnection.highlight(left, right, origin).then(response => {
                 resolve(response);
             }).catch(err => reject(err));
         });

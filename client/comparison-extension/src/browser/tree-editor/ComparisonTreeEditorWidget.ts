@@ -6,7 +6,7 @@ import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service
 import { TreeEditor } from '../tree-widget/interfaces';
 //import { NavigatableTreeEditorOptions } from '../tree-widget/navigatable-tree-editor-widget';
 import { AddCommandProperty, MasterTreeWidget } from '../tree-widget/master-tree-widget';
-import { TreeNode, CompositeTreeNode, Title, Widget, Saveable, WidgetManager, OpenViewArguments, ApplicationShell } from '@theia/core/lib/browser';
+import { TreeNode, CompositeTreeNode, Title, Widget, Saveable, WidgetManager, OpenViewArguments, ApplicationShell, StatefulWidget } from '@theia/core/lib/browser';
 import { ComparisonBackendService } from '../../common/protocol';
 import { BaseTreeEditorWidget } from '../tree-widget';
 import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
@@ -34,7 +34,7 @@ export interface MergeInstruction {
 
 
 @injectable()
-export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements Saveable{
+export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements Saveable, StatefulWidget{
 
   protected options: ComparisonTreeEditorWidgetOptions;
   protected comparisonResponse: JSONCompareResponse;
@@ -92,21 +92,50 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
       this.myTreeWidgetOverview.treeTitle = "Differences overview:";
       this.myTreeWidgetOverview
         .setData({ error: false, data: this.instanceData})
-        .then(() => this.myTreeWidgetOverview.selectFirst());
+        .then(() => {
+          this.myTreeWidgetOverview.selectFirst();
+        });
+
 
       this.myTreeWidgetModel1
         .setData({ error: false, data: response.leftTree})
-        .then(() => this.myTreeWidgetModel1.selectFirst());
+        .then(() => {
+          this.myTreeWidgetModel1.selectFirst();
+        });
 
       this.myTreeWidgetModel2
         .setData({ error: false, data: response.rightTree })
-        .then(() => this.myTreeWidgetModel2.selectFirst());
+        .then(() => {
+          this.myTreeWidgetModel2.selectFirst();
+        });
 
       this.myTreeWidgetOverview.model.refresh();
 
       this.actionWidget.setGraphicalComparisonVisibility(this.config.supportGraphicalComparison());
     });
   }
+
+  /*
+  // This was to fix the "Icon-bug" which does not exist currently cince removing css imports from frontend
+
+  this.myTreeWidgetOverview.model.onExpansionChanged(async e => {
+    var node: TreeEditor.Node = <TreeEditor.Node>e;
+    while(node.parent && TreeEditor.Node.is(node.parent) ) {
+      node = node.parent;
+    }
+    if (node !== e) {
+      await this.myTreeWidgetOverview.model.toggleNodeExpansion(node);
+      await(this.sleep(10));
+      await this.myTreeWidgetOverview.model.toggleNodeExpansion(node);
+    }
+  });
+
+        await this.sleep(10); // fix the icon bug
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  */
 
   /**
    *  Returns the opened file
@@ -189,6 +218,14 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
     }
   }
 
+  storeState(): object {
+    return this.options;
+  }
+
+  restoreState(oldState: object): void {
+    this.setContent(<ComparisonTreeEditorWidgetOptions> oldState);
+  }
+
   show(): void {
     console.log("show");
     super.show();
@@ -262,10 +299,12 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
 
   public showGraphicalComparison(): void {
     if (this.dirty) {
-
+      if (confirm('There are unsaved changes, do you want to save and continue?')) {
+        this.save();
+      } else {
+        return;
+      }
     }
-
-    this.options.left
 
     this.graphicalOpener.getHighlights(this.options.left, this.options.right).then(async (highlights: any) => {
       const leftWidget = await this.graphicalOpener.getLeftDiagram(new URI(this.options.left), highlights);
