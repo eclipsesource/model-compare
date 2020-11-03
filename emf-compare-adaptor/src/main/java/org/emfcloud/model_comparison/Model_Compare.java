@@ -1,4 +1,4 @@
-package org.emfcloud.compare.model_comparison;
+package org.emfcloud.model_comparison;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +12,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -31,12 +32,6 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.edit.tree.TreeNode;
 import org.eclipse.emf.edit.tree.TreePackage;
-import org.emfcloud.compare.EMF_Compare_Ui.DifferenceGroup;
-import org.emfcloud.compare.EMF_Compare_Ui.EObjectChangeMapping;
-import org.emfcloud.compare.EMF_Compare_Ui.JSONCompareResponse;
-import org.emfcloud.compare.EMF_Compare_Ui.JSONTreeNode;
-import org.emfcloud.compare.EMF_Compare_Ui.ToJSONHelper;
-import org.emfcloud.compare.EMF_Compare_Ui.TreeNodeCollection;
 
 import EAM_Metamodel.EAM_MetamodelPackage;
 
@@ -55,6 +50,8 @@ import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Conflict;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceKind;
+import org.eclipse.emf.compare.DifferenceSource;
+import org.eclipse.emf.compare.DifferenceState;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.Equivalence;
 import org.eclipse.emf.compare.Match;
@@ -83,7 +80,6 @@ public class Model_Compare {
 	private static final String ARG_RIGHT = "-right";
 	private static final String ARG_ORIGIN = "-origin";
 	private static final String ARG_MERGES = "-merges";
-	private static final String ARG_CONFLICTS = "-conflicts";
 	
 	private static final String OPERATION_COMPARISON = "comparison";
 	private static final String OPERATION_HIGHLIGHT = "highlight";
@@ -97,7 +93,6 @@ public class Model_Compare {
 		validArgs.add(ARG_RIGHT);
 		validArgs.add(ARG_ORIGIN);
 		validArgs.add(ARG_MERGES);
-		validArgs.add(ARG_CONFLICTS);
 	}
 	
 	private static void printArgs() {
@@ -108,19 +103,7 @@ public class Model_Compare {
 	}
 
 	public static void main(String[] args) {
-		args = new String[8];
-		args[0] = ARG_OPERATION;
-		args[1] = OPERATION_COMPARISON;
-		args[2] = ARG_LEFT;
-		args[3] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram.eam";
-		args[4] = ARG_RIGHT;
-		args[5] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram_new.eam";
-		args[6] = ARG_ORIGIN;
-		args[7] = "C:\\Users\\ldkpr\\Documents\\Studium\\Master_Thesis\\ws\\eam-model-editor\\client\\workspace\\tree-way-comparison\\diagram_origin.eam";
-		//args[6] = ARG_TARGET;
-		//args[7] = "all";
-		//args[8] = ARG_DIRECTION;
-		//args[9] = "left";
+		
 		
 		Map<String, String> data = new HashMap<String, String>();
 		if (args.length < 2) {
@@ -184,7 +167,7 @@ public class Model_Compare {
 			
 			// comparing
 			Comparison comparison = EMFCompare.builder().build().compare(scope);
-			
+						
 			// apply merges
 			applyAllMerges(data, comparison);
 			
@@ -195,7 +178,7 @@ public class Model_Compare {
 			JSONCompareResponse root = new JSONCompareResponse();
 			TreeNodeCollection nodes = new TreeNodeCollection();
 			
-			List<TreeNode> conflictNodeList = new DifferenceGroup().getConflicts(comparison);
+			List<TreeNode> conflictNodeList = new DifferenceGroup(comparison, DifferenceGroup.conflictFilter).generateTree();
 			if (conflictNodeList.size() > 0) {
 				JSONTreeNode conflicts = new JSONTreeNode("conflicts", "Conflicts");
 				conflicts.setIcon("fas fa-exclamation red");
@@ -207,7 +190,7 @@ public class Model_Compare {
 				nodes.addChild(conflicts);
 			}
 			
-			List<TreeNode> diffNodeList = new DifferenceGroup().getDifferences(comparison);
+			List<TreeNode> diffNodeList = new DifferenceGroup(comparison, DifferenceGroup.diffFilter).generateTree();
 			for (TreeNode node : diffNodeList) {
 				JSONTreeNode n = getOverview(node, changeMapping);
 				nodes.addChild(n);
@@ -233,25 +216,31 @@ public class Model_Compare {
 	private static void highlight(Map<String, String> data) {
 		URI leftURI = getUri(data.get(ARG_LEFT));
 		URI rightURI = getUri(data.get(ARG_RIGHT));
+		URI originURI = getUri(data.get(ARG_ORIGIN));
 		
 		if (isValidFile(leftURI) && isValidFile(rightURI)) {
 			// creates the resourceSets where we will load the models
 			final ResourceSet resourceSetLeft = new ResourceSetImpl();
 			final ResourceSet resourceSetRight = new ResourceSetImpl();
+			final ResourceSet resourceSetOrigin = new ResourceSetImpl();
 			
 			// loading resources
+			boolean originProvided = isValidFile(originURI);
 			load(leftURI, resourceSetLeft);
 			load(rightURI, resourceSetRight);
+			if (originProvided) {
+				load(originURI, resourceSetOrigin);
+			}
 
 			// setting scope
-			IComparisonScope scope = new DefaultComparisonScope(resourceSetLeft, resourceSetRight, null);
+			IComparisonScope scope = new DefaultComparisonScope(resourceSetLeft, resourceSetRight, (originProvided) ? resourceSetOrigin : null);
 			
 			// comparing
 			Comparison comparison = EMFCompare.builder().build().compare(scope);
 			
 			EObjectChangeMapping changeMapping = new EObjectChangeMapping();
 						
-			List<TreeNode> list = new DifferenceGroup().getDifferences(comparison);
+			List<TreeNode> list = new DifferenceGroup(comparison, DifferenceGroup.noPseudoFilter).generateTree();
 			for (TreeNode node : list) {
 				getOverview(node, changeMapping);
 			}
@@ -263,19 +252,32 @@ public class Model_Compare {
 		}
 	}
 	
-	private static void applyMergeInformation(String type, String target, String direction, Comparison comparison) {
+	private static void applyMergeInformation(String type, String target, String direction, Comparison comparison, EObjectChangeMapping changeMapping) {
 		IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
 	    IBatchMerger merger = new BatchMerger(mergerRegistry);
 		if (target.equals("all")) {
 		    if (direction.equals("left")) {
-		    	merger.copyAllRightToLeft(comparison.getDifferences(), new BasicMonitor());
+		    	List<Diff> diffs = comparison.getDifferences().stream()
+		    			.filter(e -> e.getSource().equals(DifferenceSource.RIGHT))
+		    			.collect(Collectors.toList());
+		    	merger.copyAllRightToLeft(diffs, new BasicMonitor());
 		    } else {
-		    	merger.copyAllLeftToRight(comparison.getDifferences(), new BasicMonitor());
+		    	List<Diff> diffs = comparison.getDifferences().stream()
+		    			.filter(e -> e.getSource().equals(DifferenceSource.LEFT))
+		    			.collect(Collectors.toList());
+		    	merger.copyAllLeftToRight(diffs, new BasicMonitor());
 		    }
 		} else {
 			for (Diff diff : comparison.getDifferences()) {
-				JSONTreeNode node = ToJSONHelper.diffToJSONTree(diff, new EObjectChangeMapping());
-				if (node.getUuid().equals(target)) {
+				JSONTreeNode node = JSONTreeCreator.diffToJSONTree(diff, changeMapping);
+				if (node.getUuid().equals(target)) {	
+					List<Diff> diffList = new ArrayList<>();
+					if (type.equals("conflict") && diff.getConflict() != null) {
+						diffList.addAll(diff.getConflict().getDifferences());
+					} else {
+						diffList.add(diff);
+					}
+					
 					if (direction.equals("left")) {
 				    	merger.copyAllRightToLeft(List.of(diff), new BasicMonitor());
 				    } else {
@@ -290,11 +292,18 @@ public class Model_Compare {
 	private static void applyAllMerges(Map<String, String> data, Comparison comparison) {
 		if (data.get(ARG_MERGES) != null) {
 			String[] merges = data.get(ARG_MERGES).split(",");
+			
+			// rebuild change mapping
+			EObjectChangeMapping changeMapping = new EObjectChangeMapping();
+			for (TreeNode node : new DifferenceGroup(comparison, DifferenceGroup.noPseudoFilter).buildMatchTrees()) {
+				getOverview(node, changeMapping);
+			}
+			
 			if (merges.length > 0 && merges[0].length() > 0) {
 				for (String merge : merges) {
 					String[] info = merge.split(";");
 					if (info.length == 3) {
-						applyMergeInformation(info[0], info[1], info[2], comparison);
+						applyMergeInformation(info[0], info[1], info[2], comparison, changeMapping);
 					}
 				}
 			}
@@ -348,7 +357,7 @@ public class Model_Compare {
 	private static JSONTreeNode getOverview(TreeNode treeNode, EObjectChangeMapping changeMapping) {
 		EObject data = treeNode.getData();
 		
-		JSONTreeNode jsonNode = ToJSONHelper.getOverview(data, changeMapping);
+		JSONTreeNode jsonNode = JSONTreeCreator.getOverview(data, changeMapping);
 
 		for(TreeNode node : treeNode.getChildren()) {
 			jsonNode.addChild(getOverview(node, changeMapping));
@@ -363,23 +372,13 @@ public class Model_Compare {
 			EList<EObject> eObjects = resource.getContents();
 			
 			for (EObject eObject : eObjects) {
-				JSONTreeNode node = ToJSONHelper.objectToJSONTree(eObject, changeMapping);
+				JSONTreeNode node = JSONTreeCreator.objectToJSONTree(eObject, changeMapping);
 				return node;
 			}
 		}
 		
 		return null;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	private static void load(URI uri, ResourceSet resourceSet) {
 	  //resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
@@ -390,48 +389,6 @@ public class Model_Compare {
 	  
 	  // Resource will be loaded within the resource set
 	  resourceSet.getResource(uri, true);
-	}
-	
-	private static String getLabelName(EObject object) {
-		String ret = null;
-		if (object == null) {
-			ret = "<null>"; //$NON-NLS-1$
-		} else {
-			EObject eObject = object;
-			EClass eClass = eObject.eClass();
-			ret = eClass.getName();
-
-			EStructuralFeature feature = getLabelFeature(eClass);
-			if (feature != null) {
-				Object value = eObject.eGet(feature);
-				if (value != null) {
-					ret += " " + value.toString(); //$NON-NLS-1$
-				}
-			}
-		}
-		return ret;
-	}
-	
-	private static EStructuralFeature getLabelFeature(EClass eClass) {
-		if (eClass == EcorePackage.Literals.ENAMED_ELEMENT) {
-			return EcorePackage.Literals.ENAMED_ELEMENT__NAME;
-		}
-
-		EAttribute result = null;
-		for (EAttribute eAttribute : eClass.getEAllAttributes()) {
-			if (!eAttribute.isMany() && eAttribute.getEType().getInstanceClass() != FeatureMap.Entry.class) {
-				if ("name".equalsIgnoreCase(eAttribute.getName())) { //$NON-NLS-1$
-					result = eAttribute;
-					break;
-				} else if (result == null) {
-					result = eAttribute;
-				} else if (eAttribute.getEAttributeType().getInstanceClass() == String.class
-						&& result.getEAttributeType().getInstanceClass() != String.class) {
-					result = eAttribute;
-				}
-			}
-		}
-		return result;
 	}
 	
 	private static URI getUri(String path) {

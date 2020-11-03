@@ -1,4 +1,4 @@
-package org.emfcloud.compare.model_comparison;
+package org.emfcloud.model_comparison;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;

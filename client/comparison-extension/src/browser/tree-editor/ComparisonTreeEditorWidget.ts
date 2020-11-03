@@ -14,7 +14,6 @@ import { GraphicalComparisonOpener } from '../graphical/graphical-comparison-ope
 import URI from '@theia/core/lib/common/uri';
 import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from '../graphical/graphical-comparison-widget';
 
-
 export const ComparisonTreeEditorWidgetOptions = Symbol(
   'ComparisonTreeEditorWidgetOptions'
 );
@@ -76,6 +75,9 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
 
   public setContent(options) {
     this.options = options;
+    console.log("left: " + options.left);
+    console.log("right: " + options.right);
+    console.log("origin: " + options.origin);
     this.comparisonBackendService.getNewComparison(options.left, options.right, options.origin, this.mergesToString()).then(r => {
       let response: JSONCompareResponse = JSON.parse(r);
       this.comparisonResponse = response;
@@ -112,6 +114,8 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
       this.myTreeWidgetOverview.model.refresh();
 
       this.actionWidget.setGraphicalComparisonVisibility(this.config.supportGraphicalComparison());
+
+      console.log(JSON.stringify(this.comparisonResponse.uuidConnection));
     });
   }
 

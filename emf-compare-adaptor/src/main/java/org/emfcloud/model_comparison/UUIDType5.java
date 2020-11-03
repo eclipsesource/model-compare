@@ -1,4 +1,4 @@
-package org.emfcloud.compare.model_comparison;
+package org.emfcloud.model_comparison;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;

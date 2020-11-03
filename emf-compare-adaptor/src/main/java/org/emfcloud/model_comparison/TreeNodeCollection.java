@@ -1,4 +1,4 @@
-package org.emfcloud.compare.EMF_Compare_Ui;
+package org.emfcloud.model_comparison;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,15 @@ public class TreeNodeCollection {
 	
 	public int getChildrenCount() {
 		return children.size();
+	}
+	
+	public JSONTreeNode findChildByUUID(String uuid) {
+		for (JSONTreeNode jsonTreeNode : children) {
+			if (jsonTreeNode.getUuid().equals(uuid)) {
+				return jsonTreeNode;
+			}
+		}
+		return null;
 	}
 	
 	@Override

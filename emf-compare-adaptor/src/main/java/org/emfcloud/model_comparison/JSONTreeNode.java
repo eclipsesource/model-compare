@@ -1,4 +1,4 @@
-package org.emfcloud.compare.EMF_Compare_Ui;
+package org.emfcloud.model_comparison;
 
 import java.util.ArrayList;
 import java.util.List;

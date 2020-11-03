@@ -1,4 +1,4 @@
-package org.emfcloud.compare.EMF_Compare_Ui;
+package org.emfcloud.model_comparison;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,9 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
@@ -28,28 +25,29 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 
-public class DifferenceGroup implements Adapter {
+public class DifferenceGroup {
 	
-	//protected final Predicate<? super Diff> trueFilter = e -> true;
-	protected final Predicate<Diff> diffFilter = diff -> {
+	protected Comparison comparison;
+	protected Predicate<Diff> filter;
+	
+	public static final Predicate<Diff> diffFilter = diff -> {
 		return diff.getConflict() == null;
 	};
 	
-	protected final Predicate<Diff> conflictFilter = diff -> {
+	public static final Predicate<Diff> conflictFilter = diff -> {
 		return diff.getConflict() != null && !diff.getConflict().getKind().equals(ConflictKind.PSEUDO);
 	};
 	
-	public List<TreeNode> getDifferences(Comparison comparison) {
-		return buildOverviewTree(comparison, diffFilter);
-	}
+	public static final Predicate<Diff> noPseudoFilter = diff -> {
+		return diff.getConflict() == null || !diff.getConflict().getKind().equals(ConflictKind.PSEUDO);
+	};
 	
-	public List<TreeNode> getConflicts(Comparison comparison) {
-		return buildOverviewTree(comparison, conflictFilter);
+	public DifferenceGroup(Comparison comparison, Predicate<Diff> filter) {
+		this.comparison = comparison;
+		this.filter = filter;
 	}
 
-
-	
-	protected List<TreeNode> buildOverviewTree(Comparison comparison, Predicate<Diff> filter) {
+	public List<TreeNode> generateTree() {
 		
 		/*
 		ECrossReferenceAdapter crossReferenceAdapter = new ECrossReferenceAdapter() {
@@ -71,16 +69,16 @@ public class DifferenceGroup implements Adapter {
 		
 		
 		List<TreeNode> children = new ArrayList<TreeNode>();
-		children.addAll(buildMatchTrees(comparison, filter));
+		children.addAll(buildMatchTrees());
 		//children.addAll(buildMatchResourceTrees(comparison));
 		return children;
 	}
 	
 	
-	protected List<TreeNode> buildMatchTrees(Comparison comparison, Predicate<Diff> filter) {
+	protected List<TreeNode> buildMatchTrees() {
 		final List<TreeNode> matchTrees = new ArrayList<TreeNode>();
-		for (Match match : comparison.getMatches()) {
-			MatchNode matchNode = buildTree(match, filter);
+		for (Match match : this.comparison.getMatches()) {
+			MatchNode matchNode = buildTree(match);
 			if (matchNode != null) {
 				matchTrees.add(matchNode);
 			}
@@ -88,28 +86,22 @@ public class DifferenceGroup implements Adapter {
 		return matchTrees;
 	}
 	
-	protected MatchNode buildTree(Match match, Predicate<Diff> filter) {
+	protected MatchNode buildTree(Match match) {
 		MatchNode result = null;
-		MatchNode matchNode = createMatchNode(match);
-		populateMatchNode(matchNode, filter);
+		MatchNode matchNode = new MatchNode(match);
+		populateMatchNode(matchNode);
 		if (!matchNode.getChildren().isEmpty()) {
 			result = matchNode;
 		}
 		return result;
 	}
 	
-	protected MatchNode createMatchNode(Match match) {
-		MatchNode matchNode = new MatchNode(match);
-		matchNode.eAdapters().add(this);
-		return matchNode;
-	}
-	
-	protected void populateMatchNode(MatchNode matchNode, Predicate<? super Diff> filter) {
+	protected void populateMatchNode(MatchNode matchNode) {
 		Match match = matchNode.getMatch();
 		Multimap<Match, Diff> diffsBySubMatch = LinkedHashMultimap.create();
 		for (Diff diff : match.getDifferences()) {
 			
-			if (!filter.apply(diff)) {
+			if (!this.filter.apply(diff)) {
 				continue;
 			}
 			
@@ -119,29 +111,24 @@ public class DifferenceGroup implements Adapter {
 			if (mustDisplayAsDirectChildOfMatch(diff)) {
 				Match targetMatch = getTargetMatch(diff);
 				
-				// remove pseudo conflicts
-				if (diff.getConflict() != null && diff.getConflict().getKind().equals(ConflictKind.PSEUDO)) {
-					continue;
-				}
-				
 				if (match == targetMatch) {
 					addDiffNode(matchNode, diff);
 				} else if (match.getSubmatches().contains(targetMatch)) {
 					diffsBySubMatch.put(targetMatch, diff);
 				} else if (targetMatch != null) {
-					MatchNode targetMatchNode = createMatchNode(targetMatch);
+					MatchNode targetMatchNode = new MatchNode(match);
 					matchNode.addSubMatchNode(targetMatchNode);
 					addDiffNode(targetMatchNode, diff);
 				}
 			}
 		}
 		for (Match subMatch : match.getSubmatches()) {
-			MatchNode subMatchNode = createMatchNode(subMatch);
+			MatchNode subMatchNode = new MatchNode(subMatch);
 			for (Diff subMatchDiff : diffsBySubMatch.get(subMatch)) {
 				addDiffNode(subMatchNode, subMatchDiff);
 			}
 			diffsBySubMatch.removeAll(subMatch);
-			populateMatchNode(subMatchNode, filter);
+			populateMatchNode(subMatchNode);
 			if (!subMatchNode.getChildren().isEmpty()) {
 				matchNode.addSubMatchNode(subMatchNode);
 			}
@@ -174,7 +161,7 @@ public class DifferenceGroup implements Adapter {
 	
 	protected void addDiffNode(MatchNode matchNode, Diff diff) {
 		if (!(diff instanceof ResourceAttachmentChange)) {
-			DiffNode diffNode = createDiffNode(diff);
+			DiffNode diffNode = new DiffNode(diff);
 			handleRefiningDiffs(diffNode);
 			matchNode.addDiffNode(diffNode);
 		}
@@ -183,7 +170,7 @@ public class DifferenceGroup implements Adapter {
 	protected void handleRefiningDiffs(DiffNode diffNode) {
 		Diff diff = diffNode.getDiff();
 		for (Diff refiningDiff : diff.getRefinedBy()) {
-			DiffNode refinedDiffNode = createDiffNode(refiningDiff);
+			DiffNode refinedDiffNode = new DiffNode(refiningDiff);
 			diffNode.addRefinedDiffNode(refinedDiffNode);
 			handleRefiningDiffs(refinedDiffNode);
 		}
@@ -220,57 +207,16 @@ public class DifferenceGroup implements Adapter {
 		return matchResourceTrees;
 	}
 	
+	
 	protected MatchResourceNode buildSubTree(MatchResource matchResource,
 			Set<ResourceAttachmentChange> attachmentChanges) {
-		MatchResourceNode matchResourceNode = createMatchResourceNode(matchResource);
+		MatchResourceNode matchResourceNode = new MatchResourceNode(matchResource);
 		Collection<ResourceAttachmentChange> filteredChanges = attachmentChanges; //filter(attachmentChanges, filter);
 		for (ResourceAttachmentChange attachmentChange : filteredChanges) {
-			DiffNode diffNode = createDiffNode(attachmentChange);
+			DiffNode diffNode = new DiffNode(attachmentChange);
 			matchResourceNode.addDiffNode(diffNode);
 		}
 		return matchResourceNode;
 	}
-	
-	protected MatchResourceNode createMatchResourceNode(MatchResource matchResource) {
-		MatchResourceNode matchResourceNode = new MatchResourceNode(matchResource);
-		matchResourceNode.eAdapters().add(this);
-		return matchResourceNode;
-	}
-	
-	protected DiffNode createDiffNode(Diff diff) {
-		DiffNode diffNode = new DiffNode(diff);
-		diffNode.eAdapters().add(this);
-		return diffNode;
-	}
 
-
-	@Override
-	public void notifyChanged(Notification notification) {
-		//throw new RuntimeException("Not implemented");
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public Notifier getTarget() {
-		throw new RuntimeException("Not implemented");
-		// TODO Auto-generated method stub
-		//return null;
-	}
-
-
-	@Override
-	public void setTarget(Notifier newTarget) {
-		// TODO Auto-generated method stub
-		//throw new RuntimeException("Not implemented");
-	}
-
-
-	@Override
-	public boolean isAdapterForType(Object type) {
-		throw new RuntimeException("Not implemented");
-		// TODO Auto-generated method stub
-		//return false;
-	}
 }

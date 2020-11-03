@@ -1,4 +1,4 @@
-package org.emfcloud.compare.EMF_Compare_Ui;
+package org.emfcloud.model_comparison;
 
 public class JSONCompareResponse {
 	private String overviewTree;
@@ -74,7 +74,9 @@ public class JSONCompareResponse {
 		// TODO: escape JSON
 		String overviewTree = this.overviewTree;
 		if (overviewTree.matches("\\s*\\{\\s*\\}\\s*")) {
-			overviewTree = new JSONTreeNode("information", "< No differences detected for this comparison. >").toString();
+			TreeNodeCollection collection = new TreeNodeCollection();
+			collection.addChild(new JSONTreeNode("information", "< No differences detected for this comparison. >"));
+			overviewTree = collection.toString();
 		}
 		
 		StringBuilder sb = new StringBuilder();
