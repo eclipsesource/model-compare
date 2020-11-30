@@ -124,67 +124,7 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
                 {deco}
             </React.Fragment>
         );
-
-        /*
-        
-                <div className='node-buttons'>
-                    {addPlus
-                        ? (
-                            <div
-                                className='node-button fa fa-plus'
-                                onClick={this.createAddHandler(node)}
-                            />
-                        )
-                        : ('')}
-                    {addRemoveButton
-                        ? (
-                            <div
-                                className='node-button fa fa-trash'
-                                onClickCapture={this.createRemoveHandler(node)}
-                            />
-                        )
-                        : ('')}
-                </div>
-        */
     }
-
-    /**
-     * Creates a handler for the delete button of a tree node.
-     * @param node The tree node to create a remove handler for
-     
-
-    private createRemoveHandler(node: TreeEditor.Node): (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void {
-        return event => {
-            event.stopPropagation();
-            const dialog = new ConfirmDialog({
-                title: 'Delete Node?',
-                msg: 'Are you sure you want to delete the selected node?'
-            });
-            dialog.open().then(remove => {
-                if (remove && node.parent && node.parent && TreeEditor.Node.is(node.parent)) {
-                    this.onDeleteEmitter.fire(node);
-                }
-            });
-        };
-    }
-
-    private createAddHandler(node: TreeEditor.Node): (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void {
-        return event => {
-            const addHandler = (property: string, type: string): any => this.onAddEmitter.fire({ node, property, type });
-            const treeAnchor: TreeAnchor = {
-                x: event.nativeEvent.x,
-                y: event.nativeEvent.y,
-                node: node,
-                onClick: addHandler
-            };
-            const renderOptions: RenderContextMenuOptions = {
-                menuPath: TreeContextMenu.ADD_MENU,
-                anchor: treeAnchor
-            };
-            this.contextMenuRenderer.render(renderOptions);
-        };
-    }
-    */
 
     public async setData(data: TreeEditor.TreeData): Promise<void> {
         this.data = data;
@@ -226,15 +166,6 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         > {
         return this.onTreeWidgetSelectionEmitter.event;
     }
-
-    /*
-    get onDelete(): import('@theia/core').Event<Readonly<TreeEditor.Node>> {
-        return this.onDeleteEmitter.event;
-    }
-    get onAdd(): import('@theia/core').Event<Readonly<AddCommandProperty>> {
-        return this.onAddEmitter.event;
-    }
-    */
 
     protected async refreshModelChildren(): Promise<void> {
         if (this.model.root && TreeEditor.RootNode.is(this.model.root)) {
@@ -293,47 +224,6 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         node.children = newNode.children;
         this.model.refresh();
     }
-
-    /**
-     * Creates new tree nodes for the given data and adds them to the given node.
-     *
-     * @param node The node to add children to
-     * @param data The data array to generate the new tree nodes from
-     * @param property The property of the parent data which will contain the new nodes.
-     
-    public addChildren(node: TreeEditor.Node, data: any[], property: string): void {
-        const currentValue = node.jsonforms.data[property];
-        let index = 0;
-        if (Array.isArray(currentValue)) {
-            index = currentValue.length;
-        }
-        data.map((d, i) => this.nodeFactory.mapData(d, node, property, index + i));
-        this.updateIndex(node, property);
-        this.model.refresh();
-    }
-
-    public removeChildren(node: TreeEditor.Node, indices: number[], property: string): void {
-        const toDelete = node.children.filter(n =>
-            TreeEditor.Node.is(n) &&
-            n.jsonforms.property === property &&
-            indices.includes(Number(n.jsonforms.index))
-        ).map(n => node.children.indexOf(n));
-        toDelete.forEach(i => node.children.splice(i, 1));
-        this.updateIndex(node, property);
-        this.model.refresh();
-    }
-    
-
-    private updateIndex(node: TreeEditor.Node, property: string): void {
-        let realIndex = 0;
-        node.children.forEach((n, i) => {
-            if (TreeEditor.Node.is(n) && n.jsonforms.property === property) {
-                n.jsonforms.index = realIndex.toString();
-                realIndex++;
-            }
-        });
-    }
-    */
 }
 
 // eslint-disable-next-line no-redeclare

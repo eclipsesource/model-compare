@@ -1,7 +1,5 @@
-//import '../../../style/forms.css'; // causes bugs
 import '../../../style/index.css';
 import '../../../style/elements.css';
-//import '@fortawesome/fontawesome-free/js/all.js'; // causes bugs
 
 import { ContainerModule } from 'inversify';
 import { bindViewContribution, WidgetFactory } from '@theia/core/lib/browser';
@@ -10,8 +8,6 @@ import { GraphicalComparisonContribution } from './graphical-comparison-contribu
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
 export default new ContainerModule(bind => {
-    console.log("starting frontend 2");
-
     bindViewContribution(bind, GraphicalComparisonContribution);
     bind(TabBarToolbarContribution).toService(GraphicalComparisonContribution);
     

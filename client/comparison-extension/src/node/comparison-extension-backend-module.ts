@@ -26,11 +26,7 @@ export default new ContainerModule(bind => {
     bind(ComparisonBackendService).to(ComparisonBackendServiceImpl).inSingletonScope()
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new JsonRpcConnectionHandler<BackendClient>(COMPARISON_BACKEND_PATH, client => {
-            const server = ctx.container.get<ComparisonBackendServiceImpl>(ComparisonBackendService);
-            console.log("server: " + server);
-            server.setClient(client);
-            client.onDidCloseConnection(() => server.dispose());
-            return server;
+            return ctx.container.get<ComparisonBackendServiceImpl>(ComparisonBackendService);
         })
     ).inSingletonScope();
 

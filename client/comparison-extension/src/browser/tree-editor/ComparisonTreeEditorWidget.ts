@@ -1,18 +1,15 @@
 import { injectable, inject } from 'inversify';
 import { ILogger } from '@theia/core';
-//import { ModelServerClient } from '@eclipse-emfcloud/modelserver-theia/lib/common';
-//import { ModelServerSubscriptionService } from '@eclipse-emfcloud/modelserver-theia/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { TreeEditor } from '../tree-widget/interfaces';
-//import { NavigatableTreeEditorOptions } from '../tree-widget/navigatable-tree-editor-widget';
 import { AddCommandProperty, MasterTreeWidget } from '../tree-widget/master-tree-widget';
 import { TreeNode, CompositeTreeNode, Title, Widget, Saveable, WidgetManager, OpenViewArguments, ApplicationShell, StatefulWidget } from '@theia/core/lib/browser';
 import { ComparisonBackendService } from '../../common/protocol';
-import { BaseTreeEditorWidget } from '../tree-widget';
 import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
 import { GraphicalComparisonOpener } from '../graphical/graphical-comparison-opener';
 import URI from '@theia/core/lib/common/uri';
 import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from '../graphical/graphical-comparison-widget';
+import { BaseTreeEditorWidget } from '../tree-widget/tree-editor-widget';
 
 export const ComparisonTreeEditorWidgetOptions = Symbol(
   'ComparisonTreeEditorWidgetOptions'
@@ -30,7 +27,6 @@ export interface MergeInstruction {
   target: string,
   direction: string
 }
-
 
 @injectable()
 export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements Saveable, StatefulWidget{
@@ -53,10 +49,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
     @inject(WorkspaceService)
     readonly workspaceService: WorkspaceService,
     @inject(ILogger) readonly logger: ILogger
-    //@inject(ModelServerClient)
-    //private readonly modelServerApi: ModelServerClient
-    //@inject(ModelServerSubscriptionService)
-    //private readonly subscriptionService: ModelServerSubscriptionService
   ) {
     super(
       myTreeWidgetOverview,
@@ -67,7 +59,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
       ComparisonTreeEditorWidget.WIDGET_ID
     );
 
-    //console.log("path: " + this.getModelIDToRequest());
     this.showInformation("loading...", "gray");
 
     window.onbeforeunload = () => this.dispose();
@@ -75,9 +66,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
 
   public setContent(options) {
     this.options = options;
-    console.log("left: " + options.left);
-    console.log("right: " + options.right);
-    console.log("origin: " + options.origin);
     this.comparisonBackendService.getNewComparison(options.left, options.right, options.origin, this.mergesToString()).then(r => {
       let response: JSONCompareResponse = JSON.parse(r);
       this.comparisonResponse = response;
@@ -114,43 +102,8 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
       this.myTreeWidgetOverview.model.refresh();
 
       this.actionWidget.setGraphicalComparisonVisibility(this.config.supportGraphicalComparison());
-
-      console.log(JSON.stringify(this.comparisonResponse.uuidConnection));
     });
   }
-
-  /*
-  // This was to fix the "Icon-bug" which does not exist currently cince removing css imports from frontend
-
-  this.myTreeWidgetOverview.model.onExpansionChanged(async e => {
-    var node: TreeEditor.Node = <TreeEditor.Node>e;
-    while(node.parent && TreeEditor.Node.is(node.parent) ) {
-      node = node.parent;
-    }
-    if (node !== e) {
-      await this.myTreeWidgetOverview.model.toggleNodeExpansion(node);
-      await(this.sleep(10));
-      await this.myTreeWidgetOverview.model.toggleNodeExpansion(node);
-    }
-  });
-
-        await this.sleep(10); // fix the icon bug
-
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  */
-
-  /**
-   *  Returns the opened file
-   
-  private getModelIDToRequest(): string {
-    const rootUriLength = this.workspaceService
-      .getWorkspaceRootUri(this.options.uri)
-      .toString().length;
-    return this.options.uri.toString().substring(rootUriLength + 1);
-  }
-  */
 
   protected treeSelectionChanged(treeWidget: MasterTreeWidget, selectedNodes: readonly Readonly<TreeEditor.Node>[]): void {
     if (treeWidget === this.treeWidgetOverview) {
@@ -214,7 +167,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
   public save(): void {
     if (this.options) {
       this.comparisonBackendService.merge(this.options.left, this.options.right, this.options.origin, this.mergesToString(), "").then(response => {
-        //alert(response);
         this.options.merges = [];
         this.setDirty(false);
         this.setContent(this.options);
@@ -231,14 +183,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
   }
 
   show(): void {
-    console.log("show");
     super.show();
-    /*
-    if (this.delayedRefresh) {
-      this.delayedRefresh = false;
-      this.treeWidget.model.refresh();
-    }
-    */
   }
 
   private showInformation(text: string, color: string, icon: string = "") {
@@ -325,6 +270,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
   }
 
   async openView(widget: Widget, args: Partial<OpenViewArguments> = {}): Promise<Widget> {
+    // TODO: We might be able to reuse some function so we do not need to implement it here
     const shell = this.shell;
     const tabBar = shell.getTabBarFor(widget);
     const area = shell.getAreaFor(widget);

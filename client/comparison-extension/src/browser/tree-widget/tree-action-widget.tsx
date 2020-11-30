@@ -11,7 +11,7 @@
 import * as React from 'react';
 import { injectable, postConstruct } from 'inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
-import { BaseTreeEditorWidget } from '.';
+import { BaseTreeEditorWidget } from './tree-editor-widget';
 
 @injectable()
 export class TreeActionWidget extends ReactWidget {
@@ -39,16 +39,14 @@ export class TreeActionWidget extends ReactWidget {
 
         return <div>
             <h3>{"Actions:"}</h3>
-            <b>Merge right to left </b><br/>
-            <button onClick={() => this.parentView.merge(true, false, false)} disabled={!this.activateMerge}>🡐 Merge Single </button><br/>
-            <button onClick={() => this.parentView.merge(true, true, false)}>🡐 Merge ALL </button><br/><br/>
-            <b>Merge left to right</b><br/>
-            <button onClick={() => this.parentView.merge(false, false, false)} disabled={!this.activateMerge}>🡒 Merge Single </button><br/>
-            <button onClick={() => this.parentView.merge(false, true, false)}>🡒 Merge ALL </button><br/><br/>
+            <b>Merge</b><br/>
+            <button onClick={() => this.parentView.merge(false, false, false)} disabled={!this.activateMerge}>&#129106; Merge Single</button><br/>
+            <button onClick={() => this.parentView.merge(true, false, false)} disabled={!this.activateMerge}>&#10006; Discard Single</button><br/>
+            <button onClick={() => this.parentView.merge(false, true, false)}>&#129106; Merge ALL </button><br/><br/>
             <br/>
             <b>Resolve conflict</b><br/>
-            <button onClick={() => this.parentView.merge(true, false, true)} disabled={!this.activateConflict}>🡐 Merge to left (keep right) </button><br/>
-            <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>🡒 Merge to right (keep left)</button><br/><br/>
+            <button onClick={() => this.parentView.merge(true, false, true)} disabled={!this.activateConflict}>&#129104; Merge to left (keep right) </button><br/>
+            <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>&#129106;  Merge to right (keep left)</button><br/><br/>
             <br/>
             <b>Undo</b><br/>
             <button onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>Undo last action</button>

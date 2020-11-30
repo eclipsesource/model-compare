@@ -90,7 +90,6 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
         (<any[]> treeData.data).forEach(data => {
             const node = this.mapData(data);
             if (node) {
-                console.log("nodes created");
                 nodes.push(node);
             }
         });
@@ -103,8 +102,6 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             this.logger.warn('mapData called without data');
             return undefined;
         }
-
-        //console.log(JSON.stringify(data));
 
         let decorationData = {fontData: {}};
         if (data.color) {
@@ -124,8 +121,6 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
                 index: typeof indexOrKey === 'number' ? indexOrKey.toFixed(0) : indexOrKey
             }
         };
-
-        //console.log("created: " + this.getType(data.eClass, data));
         
         // containments
         if (parent) {

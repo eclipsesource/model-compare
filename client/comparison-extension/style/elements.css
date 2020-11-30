@@ -13,8 +13,12 @@
     color: yellow;
 }
 
+.blue {
+    color: #00BFFF;
+}
+
 .red {
-    color: red;
+    color: #FF6347;
 }
 
 .green {

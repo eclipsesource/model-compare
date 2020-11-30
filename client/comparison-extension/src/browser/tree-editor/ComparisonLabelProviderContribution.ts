@@ -50,7 +50,6 @@ export class ComparisonTreeLabelProvider implements LabelProviderContribution {
         case ComparisonModel.Type.DiagramInformation:
           return data.name || this.getTypeName(data.eClass);
         default:
-          // TODO query title of schema
           return this.getTypeName(data.eClass);
       }
     }

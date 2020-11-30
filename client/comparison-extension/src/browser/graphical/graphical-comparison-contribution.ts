@@ -27,7 +27,6 @@ import { ComparisonExtensionConfiguration } from '../comparison-extension-config
 import { GraphicalComparisonOpener } from './graphical-comparison-opener';
 import { ComparisonOrderDialog } from '../comparison-order-dialog';
 
-
 export namespace GraphicalComparisonCommands {
     export const FILE_COMPARE_GRAPHICALLY: Command = {
         id: 'file.compare.graphical',

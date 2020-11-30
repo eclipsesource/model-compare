@@ -49,20 +49,25 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
 
     setContent(options: GraphicalComparisonWidgetOptions): void {
         this.options = options;
+
         this.toDispose.push(this.options.left);
         this.toDispose.push(this.options.right);
+
         this.splitPanel.addClass('widget-view');
         this.splitPanel.addClass('grayBackground');
         this.options.left.addClass('widget-view');
         this.options.right.addClass('widget-view');
         this.splitPanel.addWidget(this.options.left);
         this.splitPanel.addWidget(this.options.right);
+
         this.splitPanel.setRelativeSizes([1, 1]);
         this.options.left.activate();
         this.options.right.activate();
+
         this.configureTitle(this.title);
         this.update();
         this.activate();
+
         this.options.left.getSvgElement().then(_ => {
             this.options.left.actionDispatcher.dispatch(new FitToScreenAction([]));
         });
@@ -104,7 +109,7 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
 
     protected configureTitle(title: Title<Widget>): void {
         if (this.options !== undefined) {
-            title.label = this.options.left.title.label + " ⟷ " + this.options.right.title.label;
+            title.label = this.options.left.title.label + " &#10231; " + this.options.right.title.label;
         }
         title.caption = GraphicalComparisonWidget.WIDGET_LABEL;
         title.closable = true;

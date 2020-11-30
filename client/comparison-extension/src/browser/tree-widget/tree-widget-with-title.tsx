@@ -16,7 +16,7 @@ import { TreeWidget } from "@theia/core/lib/browser";
 @injectable()
 export class TreeWidgetWithTitle extends TreeWidget {
 
-    treeTitle: string = "Best title";
+    treeTitle: string = "Title";
 
     protected render(): React.ReactNode {
         return <div><h3>{this.treeTitle}</h3>

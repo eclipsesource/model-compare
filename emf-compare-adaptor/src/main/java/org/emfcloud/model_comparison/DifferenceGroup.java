@@ -1,30 +1,39 @@
+/********************************************************************************
+ * Copyright (c) 2020 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
 package org.emfcloud.model_comparison;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.Match;
-import org.eclipse.emf.compare.MatchResource;
 import org.eclipse.emf.compare.ReferenceChange;
 import org.eclipse.emf.compare.ResourceAttachmentChange;
 import org.eclipse.emf.compare.rcp.ui.internal.structuremergeviewer.nodes.DiffNode;
 import org.eclipse.emf.compare.rcp.ui.internal.structuremergeviewer.nodes.MatchNode;
-import org.eclipse.emf.compare.rcp.ui.internal.structuremergeviewer.nodes.MatchResourceNode;
 import org.eclipse.emf.edit.tree.TreeNode;
-
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
-
+/**
+ * Filters differences and structures them hierarchical with all containing elements up the root.
+ */
 public class DifferenceGroup {
 	
 	protected Comparison comparison;
@@ -32,6 +41,10 @@ public class DifferenceGroup {
 	
 	public static final Predicate<Diff> diffFilter = diff -> {
 		return diff.getConflict() == null;
+	};
+	
+	public static final Predicate<Diff> diffFilterLeft = diff -> {
+		return diff.getConflict() == null && diff.getSource().equals(DifferenceSource.LEFT);
 	};
 	
 	public static final Predicate<Diff> conflictFilter = diff -> {
@@ -42,38 +55,20 @@ public class DifferenceGroup {
 		return diff.getConflict() == null || !diff.getConflict().getKind().equals(ConflictKind.PSEUDO);
 	};
 	
+	public static final Predicate<Diff> noPseudoFilterLeft = diff -> {
+		return (diff.getConflict() == null && diff.getSource().equals(DifferenceSource.LEFT)) || (diff.getConflict() != null && !diff.getConflict().getKind().equals(ConflictKind.PSEUDO));
+	};
+	
 	public DifferenceGroup(Comparison comparison, Predicate<Diff> filter) {
 		this.comparison = comparison;
 		this.filter = filter;
 	}
 
 	public List<TreeNode> generateTree() {
-		
-		/*
-		ECrossReferenceAdapter crossReferenceAdapter = new ECrossReferenceAdapter() {
-
-			@Override
-			protected boolean isIncluded(EReference eReference) {
-				return eReference == TreePackage.Literals.TREE_NODE__DATA;
-			}
-		};
-		BasicDifferenceGroupImpl group = new BasicDifferenceGroupImpl(comparison, e -> true, crossReferenceAdapter);
-
-		group.buildSubTree();
-		
-		IDifferenceGroupProvider defaultGroup = (IDifferenceGroupProvider) ImmutableList.of(group);
-		
-		
-		System.out.println(defaultGroup);
-		*/
-		
-		
 		List<TreeNode> children = new ArrayList<TreeNode>();
 		children.addAll(buildMatchTrees());
-		//children.addAll(buildMatchResourceTrees(comparison));
 		return children;
 	}
-	
 	
 	protected List<TreeNode> buildMatchTrees() {
 		final List<TreeNode> matchTrees = new ArrayList<TreeNode>();
@@ -175,48 +170,4 @@ public class DifferenceGroup {
 			handleRefiningDiffs(refinedDiffNode);
 		}
 	}
-	
-	protected List<TreeNode> buildMatchResourceTrees(Comparison comparison) {
-		final List<TreeNode> matchResourceTrees = new ArrayList<TreeNode>();
-		if (comparison.getMatchedResources().isEmpty()) {
-			return matchResourceTrees;
-		}
-
-		final Iterable<ResourceAttachmentChange> attachmentChanges = Iterables
-				.filter(comparison.getDifferences(), ResourceAttachmentChange.class);
-
-		final Multimap<String, ResourceAttachmentChange> uriToRAC = LinkedHashMultimap.create();
-		for (ResourceAttachmentChange attachmentChange : attachmentChanges) {
-			uriToRAC.put(attachmentChange.getResourceURI(), attachmentChange);
-		}
-		for (MatchResource matchResource : comparison.getMatchedResources()) {
-			final Collection<ResourceAttachmentChange> leftRAC = uriToRAC.get(matchResource.getLeftURI());
-			final Collection<ResourceAttachmentChange> rightRAC = uriToRAC.get(matchResource.getRightURI());
-			final Collection<ResourceAttachmentChange> originRAC = uriToRAC.get(matchResource.getOriginURI());
-			final LinkedHashSet<ResourceAttachmentChange> racForMatchResource = Sets.newLinkedHashSet();
-			racForMatchResource.addAll(leftRAC);
-			racForMatchResource.addAll(rightRAC);
-			racForMatchResource.addAll(originRAC);
-
-			MatchResourceNode matchNode = buildSubTree(matchResource, racForMatchResource);
-			if (matchNode != null) {
-				matchResourceTrees.add(matchNode);
-			}
-
-		}
-		return matchResourceTrees;
-	}
-	
-	
-	protected MatchResourceNode buildSubTree(MatchResource matchResource,
-			Set<ResourceAttachmentChange> attachmentChanges) {
-		MatchResourceNode matchResourceNode = new MatchResourceNode(matchResource);
-		Collection<ResourceAttachmentChange> filteredChanges = attachmentChanges; //filter(attachmentChanges, filter);
-		for (ResourceAttachmentChange attachmentChange : filteredChanges) {
-			DiffNode diffNode = new DiffNode(attachmentChange);
-			matchResourceNode.addDiffNode(diffNode);
-		}
-		return matchResourceNode;
-	}
-
 }

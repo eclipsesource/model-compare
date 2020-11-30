@@ -17,7 +17,6 @@ import { injectable, postConstruct } from 'inversify';
 import { TreeEditor } from './interfaces';
 import { AddCommandProperty, MasterTreeWidget } from './master-tree-widget';
 import { TreeActionWidget } from './tree-action-widget';
-//import { TextWidget } from './TextWidget';
 
 @injectable()
 export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveable {
@@ -27,7 +26,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     private splitPanelOverview: SplitPanel;
     private splitPanelModels: SplitPanel;
     protected actionWidget: TreeActionWidget;
-    //private titleWidget: TextWidget;
 
     protected readonly onDirtyChangedEmitter = new Emitter<void>();
     get onDirtyChanged(): Event<void> {
@@ -64,7 +62,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel1.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetModel2.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetOverview.addClass(BaseTreeEditorWidget.Styles.TREE);
-        //this.titleWidget = new TextWidget("My fav Title ever xDD");
 
         this.toDispose.push(
             this.treeWidgetModel1.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel1, ev))
@@ -77,15 +74,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.toDispose.push(
             this.treeWidgetOverview.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetOverview, ev))
         );
-
-        /*
-        this.toDispose.push(
-            this.treeWidget.onDelete(node => this.deleteNode(node))
-        );
-        this.toDispose.push(
-            this.treeWidget.onAdd(addProp => this.addNode(addProp))
-        );
-        */
 
         this.toDispose.push(this.onDirtyChangedEmitter);
     }
@@ -112,13 +100,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     }
 
     protected treeSelectionChanged(treeWidget: MasterTreeWidget, selectedNodes: readonly Readonly<TreeEditor.Node>[]): void {
-        if (selectedNodes.length === 0) {
-            this.selectedNode = undefined;
-        } else {
-            this.selectedNode = selectedNodes[0];
-            ;console.log(this.selectedNode);
-            // TODO: DO whatever with selected node
-        }
         this.update();
     }
 
@@ -154,7 +135,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
     }: AddCommandProperty): void;
 
     protected onAfterAttach(msg: Message): void {
-        //this.splitPanelMain.addWidget(this.titleWidget);
         this.splitPanelMain.addWidget(this.splitPanelOverview);
         this.splitPanelMain.addWidget(this.splitPanelModels);
 
@@ -164,7 +144,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.splitPanelModels.addWidget(this.treeWidgetModel1);
         this.splitPanelModels.addWidget(this.treeWidgetModel2);
 
-        // TODO: Add tree Widget 3 times
         this.splitPanelMain.setRelativeSizes([1, 1]);
         this.splitPanelOverview.setRelativeSizes([1, 1]);
         this.splitPanelModels.setRelativeSizes([1, 1]);
@@ -175,8 +154,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetOverview.activate();
         this.actionWidget.activate();
         this.actionWidget.update();
-        //this.titleWidget.activate();
-        //this.titleWidget.update();
         super.onAfterAttach(msg);
     }
 

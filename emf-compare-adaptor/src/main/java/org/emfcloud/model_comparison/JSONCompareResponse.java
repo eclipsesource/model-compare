@@ -1,3 +1,18 @@
+/********************************************************************************
+ * Copyright (c) 2020 EclipseSource and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v. 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is available at
+ * https://www.gnu.org/software/classpath/license.html.
+ *
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ ********************************************************************************/
 package org.emfcloud.model_comparison;
 
 public class JSONCompareResponse {
@@ -12,11 +27,10 @@ public class JSONCompareResponse {
 	}
 	
 	public JSONCompareResponse(String error) {
-		this("{}", "{}", "{}", "{}", "", error);
+		this("{}", "{}", "{}", "{}", error);
 	}
 	
-	public JSONCompareResponse(String overviewTree, String leftTree,
-			String rightTree, String uuidConnection, String conflicts, String error) {
+	public JSONCompareResponse(String overviewTree, String leftTree, String rightTree, String uuidConnection, String error) {
 		super();
 		this.overviewTree = overviewTree;
 		this.leftTree = leftTree;
@@ -66,12 +80,10 @@ public class JSONCompareResponse {
 	    escaped = escaped.replace("\n", "\\n");
 	    escaped = escaped.replace("\r", "\\r");
 	    escaped = escaped.replace("\t", "\\t");
-	    // TODO: escape other non-printing characters using uXXXX notation
 	    return escaped;
 	}
 
 	public String toString() {
-		// TODO: escape JSON
 		String overviewTree = this.overviewTree;
 		if (overviewTree.matches("\\s*\\{\\s*\\}\\s*")) {
 			TreeNodeCollection collection = new TreeNodeCollection();

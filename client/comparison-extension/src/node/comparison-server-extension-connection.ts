@@ -36,12 +36,12 @@ export class ComparisonServerExtensionConnection {
     const args: string[] = [];
 
     args.push(
-        '-jar', jarPath,
+        '-jar', this.addQuotes(jarPath),
         '-operation', 'comparison',
-        '-left', left,
-        '-right', right,
-        '-origin', origin,
-        '-merges', merges
+        '-left', this.addQuotes(left),
+        '-right', this.addQuotes(right),
+        '-origin', this.addQuotes(origin),
+        '-merges', this.addQuotes(merges)
     );
 
     return new Promise(resolve => {
@@ -62,7 +62,6 @@ export class ComparisonServerExtensionConnection {
         process.process.on('exit', (code: any) => {
           switch (code) {
               case 0: resolve(out); break;
-              case -10: resolve('Custom ERROR (TODO)'); break;
               default: resolve('UNKNOWN ERROR'); break;
           }
         });
@@ -79,11 +78,11 @@ export class ComparisonServerExtensionConnection {
     const args: string[] = [];
 
     args.push(
-        '-jar', jarPath,
+        '-jar', this.addQuotes(jarPath),
         '-operation', 'highlight',
-        '-left', left,
-        '-right', right,
-        '-origin', origin
+        '-left', this.addQuotes(left),
+        '-right', this.addQuotes(right),
+        '-origin', this.addQuotes(origin)
     );
 
     return new Promise(resolve => {
@@ -104,7 +103,6 @@ export class ComparisonServerExtensionConnection {
         process.process.on('exit', (code: any) => {
           switch (code) {
               case 0: resolve(out); break;
-              case -10: resolve('Custom ERROR (TODO)'); break;
               default: resolve('UNKNOWN ERROR'); break;
           }
         });
@@ -121,12 +119,12 @@ export class ComparisonServerExtensionConnection {
     const args: string[] = [];
 
     args.push(
-        '-jar', jarPath,
+        '-jar', this.addQuotes(jarPath),
         '-operation', 'merge',
-        '-left', left,
-        '-right', right,
-        '-origin', origin,
-        '-merges', merges
+        '-left', this.addQuotes(left),
+        '-right', this.addQuotes(right),
+        '-origin', this.addQuotes(origin),
+        '-merges', this.addQuotes(merges)
     );
 
     return new Promise(resolve => {
@@ -147,7 +145,6 @@ export class ComparisonServerExtensionConnection {
         process.process.on('exit', (code: any) => {
           switch (code) {
               case 0: resolve(out); break;
-              case -10: resolve('Custom ERROR (TODO)'); break;
               default: resolve('UNKNOWN ERROR'); break;
           }
         });
@@ -155,7 +152,7 @@ export class ComparisonServerExtensionConnection {
   }
 
   private spawnProcess(command: string, args?: string[]): RawProcess | undefined {
-    const rawProcess = this.processFactory({ command, args });
+    const rawProcess = this.processFactory({ command: command, args: args, options: {shell: true}});
     if (rawProcess.process === undefined) {
         return undefined;
     }
@@ -175,6 +172,10 @@ export class ComparisonServerExtensionConnection {
     if (data) {
         this.logger.error(`Framework connection: ${data}`);
     }
+  }
+
+  private addQuotes(text: string): string {
+    return '"' + text + '"';
   }
 
 }

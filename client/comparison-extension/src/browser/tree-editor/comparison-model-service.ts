@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-import { injectable, inject } from 'inversify';
+import { injectable } from 'inversify';
 import { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import {
     CompositeTreeNode,
@@ -24,10 +24,7 @@ import {
     TreeNode
 } from '@theia/core/lib/browser/tree';
 import { TreeEditor } from '../tree-widget/interfaces';
-import { ILogger } from '@theia/core';
 import { ComparisonModel } from './comparison-model';
-import { comparisonSchema } from './comparison-schemas';
-
 
 export type RootNode = CompositeTreeNode;
 
@@ -121,91 +118,23 @@ export interface ModelService {
 @injectable()
 export class ComparisonModelService implements TreeEditor.ModelService {
 
-    constructor(@inject(ILogger) private readonly logger: ILogger) { }
-
     getDataForNode(node: TreeEditor.Node) {
         return node.jsonforms.data;
     }
     getSchemaForNode(node: TreeEditor.Node): import("@jsonforms/core").JsonSchema4 | import("@jsonforms/core").JsonSchema7 | undefined {
         return {
-            definitions: comparisonSchema.definitions,
-            ...this.getSubSchemaForNode(node)
+            definitions: {}
         };
-    }
-
-    private getSubSchemaForNode(node: TreeEditor.Node) {
-        const schema = this.getSchemaForType(node.jsonforms.type);
-        if (schema) {
-            return schema;
-        }
-        // there is no type, try to guess
-        
-        return undefined;
-    }
-
-    private getSchemaForType(type: string) {
-        if (!type) {
-            return undefined;
-        }
-        const schema = undefined;
-        if (!schema) {
-            this.logger.warn("Can't find definition schema for type " + type);
-        }
-        return schema;
     }
     
     getUiSchemaForNode(node: TreeEditor.Node): UISchemaElement | undefined {
-        /*
-        const schema = this.getUiSchemaForType(node.jsonforms.type);
-        if (schema) {
-            return schema;
-        }
-        // there is no type, try to guess
-        if (node.jsonforms.data.nodes) {
-            return workflowView;
-        }
-        */
         return undefined;
     }
-
-    /*
-    private getUiSchemaForType(type: string) {
-        if (!type) {
-            return undefined;
-        }
-        switch (type) {
-            case CoffeeModel.Type.Machine:
-                return machineView;
-            case CoffeeModel.Type.ControlUnit:
-                return controlUnitView;
-            case CoffeeModel.Type.BrewingUnit:
-                return brewingView;
-            case CoffeeModel.Type.AutomaticTask:
-                return automaticTaskView;
-            case CoffeeModel.Type.ManualTask:
-                return manualTaskView;
-            case CoffeeModel.Type.DipTray:
-                return dipTrayView;
-            case CoffeeModel.Type.WaterTank:
-                return waterTankView;
-            case CoffeeModel.Type.Flow:
-                return flowView;
-            case CoffeeModel.Type.WeightedFlow:
-                return weightedFlowView;
-            case CoffeeModel.Type.Decision:
-                return decisionView;
-            case CoffeeModel.Type.Merge:
-                return mergeView;
-            default:
-                this.logger.warn("Can't find registered ui schema for type " + type);
-                return undefined;
-        }
-    }
-    */
 
     getChildrenMapping(): Map<string, TreeEditor.ChildrenDescriptor[]> {
         return ComparisonModel.childrenMapping;
     }
+
     getNameForType(type: string): string {
         return type;
     }

@@ -14,12 +14,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 import { injectable, inject } from "inversify";
-import { BackendClient, ComparisonBackendService } from "../common/protocol";
 import { ComparisonServerExtensionConnection } from "./comparison-server-extension-connection";
 
 @injectable()
-export class ComparisonBackendServiceImpl implements ComparisonBackendService {
-    private client?: BackendClient;
+export class ComparisonBackendServiceImpl {
 
     constructor(
         @inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) { }
@@ -34,6 +32,7 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
     }
 
     getHighlight(left: string, right: string, origin: string): Promise<string>{
+        if (origin.trim() === "") origin = "undefined";
         return new Promise((resolve, reject) => {
             this.serverConnection.highlight(left, right, origin).then(response => {
                 resolve(response);
@@ -49,14 +48,4 @@ export class ComparisonBackendServiceImpl implements ComparisonBackendService {
             }).catch(err => reject(err));
         });
     }
-
-    dispose(): void {
-        // do nothing
-    }
-    setClient(client: BackendClient): void {
-        this.client = client;
-        console.log(this.client);
-    }
-
-
 }
