@@ -1,6 +1,5 @@
-import URI from '@theia/core/lib/common/uri';
 /********************************************************************************
- * Copyright (C) 2018 TypeFox and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,6 +13,8 @@ import URI from '@theia/core/lib/common/uri';
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import URI from '@theia/core/lib/common/uri';
+
 import { injectable, inject } from 'inversify';
 import { ComparisonBackendService } from '../../common/protocol';
 import { GLSPDiagramWidget } from "@eclipse-glsp/theia-integration/lib/browser";
