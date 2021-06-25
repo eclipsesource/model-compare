@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EAM_Metamodel:Landscape xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:EAM_Metamodel="http://www.example.org/EAM_Metamodel" name="test" nsURI="test" nsPrefix="test">
+  <node xsi:type="EAM_Metamodel:Product" id="0101" name="Product A" owner="Scott" application="//@node.2"/>
+  <node xsi:type="EAM_Metamodel:Product" id="0202" name="Product B" owner="Michael" department="DE02" application="//@node.3"/>
+  <node xsi:type="EAM_Metamodel:Application" id="1234" name="BVDDS" version="1.2" application="//@node.3" applicationOpposite="//@node.5" host="//@node.4/@host.1" product="//@node.0"/>
+  <node xsi:type="EAM_Metamodel:Application" id="1221" name="ProdDB02" type="Database" version="1.5" applicationOpposite="//@node.2" host="//@node.4/@host.0" product="//@node.1"/>
+  <node xsi:type="EAM_Metamodel:DataCenter" id="DCG" name="DC-C" location="China">
+    <host id="73243" name="HostAlpha" vendor="IBM" application="//@node.3"/>
+    <host id="75634" name="HostBeta" vendor="IBM" application="//@node.2"/>
+    <host id="90732" name="HostDelta" vendor="IBM" application="//@node.5"/>
+  </node>
+  <node xsi:type="EAM_Metamodel:Application" id="8392" name="ProdDB05" type="Database" version="1.4" application="//@node.2" host="//@node.4/@host.2"/>
+</EAM_Metamodel:Landscape>
