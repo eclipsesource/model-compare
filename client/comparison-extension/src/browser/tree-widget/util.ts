@@ -14,14 +14,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { Command } from '@theia/core';
-import {
-    createTreeContainer,
-    defaultTreeProps,
-    TreeProps,
-    TreeWidget as TheiaTreeWidget
-} from '@theia/core/lib/browser/tree';
+import { createTreeContainer, defaultTreeProps, TreeProps, TreeWidget as TheiaTreeWidget } from '@theia/core/lib/browser/tree';
 import { interfaces } from 'inversify';
-
 import { TreeEditor } from './interfaces';
 import { MasterTreeWidget, TreeContextMenu } from './master-tree-widget';
 import { BaseTreeEditorWidget } from './tree-editor-widget';
@@ -33,9 +27,7 @@ export const TREE_PROPS = {
     search: false
 } as TreeProps;
 
-function createTreeWidget(
-    parent: interfaces.Container
-): MasterTreeWidget {
+function createTreeWidget(parent: interfaces.Container): MasterTreeWidget {
     const treeContainer = createTreeContainer(parent);
 
     treeContainer.unbind(TheiaTreeWidget);
@@ -60,8 +52,8 @@ export function createBasicTreeContainter(
     parent: interfaces.Container,
     treeEditorWidget: interfaces.Newable<BaseTreeEditorWidget>,
     modelService: interfaces.Newable<TreeEditor.ModelService>,
-    nodeFactory: interfaces.Newable<TreeEditor.NodeFactory>): interfaces.Container {
-
+    nodeFactory: interfaces.Newable<TreeEditor.NodeFactory>
+): interfaces.Container {
     const container = parent.createChild();
     container.bind(TreeEditor.ModelService).to(modelService);
     container.bind(TreeEditor.NodeFactory).to(nodeFactory);

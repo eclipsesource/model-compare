@@ -13,15 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import { JsonSchema, UISchemaElement } from '@jsonforms/core';
-import {
-    CompositeTreeNode,
-    DecoratedTreeNode,
-    ExpandableTreeNode,
-    SelectableTreeNode,
-    TreeNode
-} from '@theia/core/lib/browser/tree';
+import { CompositeTreeNode, DecoratedTreeNode, ExpandableTreeNode, SelectableTreeNode, TreeNode } from '@theia/core/lib/browser/tree';
+import { injectable } from 'inversify';
 import { TreeEditor } from '../tree-widget/interfaces';
 import { ComparisonModel } from './comparison-model';
 
@@ -33,11 +27,7 @@ export namespace RootNode {
     }
 }
 
-export interface Node
-    extends CompositeTreeNode,
-    ExpandableTreeNode,
-    SelectableTreeNode,
-    DecoratedTreeNode {
+export interface Node extends CompositeTreeNode, ExpandableTreeNode, SelectableTreeNode, DecoratedTreeNode {
     editorId: string;
     children: TreeNode[];
     name: string;
@@ -116,16 +106,15 @@ export interface ModelService {
 
 @injectable()
 export class ComparisonModelService implements TreeEditor.ModelService {
-
-    getDataForNode(node: TreeEditor.Node) {
+    getDataForNode(node: TreeEditor.Node): any {
         return node.jsonforms.data;
     }
-    getSchemaForNode(node: TreeEditor.Node): import("@jsonforms/core").JsonSchema4 | import("@jsonforms/core").JsonSchema7 | undefined {
+    getSchemaForNode(node: TreeEditor.Node): import('@jsonforms/core').JsonSchema4 | import('@jsonforms/core').JsonSchema7 | undefined {
         return {
             definitions: {}
         };
     }
-    
+
     getUiSchemaForNode(node: TreeEditor.Node): UISchemaElement | undefined {
         return undefined;
     }

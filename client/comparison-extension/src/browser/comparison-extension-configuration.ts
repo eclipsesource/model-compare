@@ -13,24 +13,38 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
-import * as path from "path";
+import { injectable } from 'inversify';
+import * as path from 'path';
 
 @injectable()
-export class ComparisonExtensionConfiguration {
+export abstract class ComparisonExtensionConfiguration {
+    abstract fileExtensions: string[];
+
     canHandle(uri: URI): boolean {
-      return uri.path.ext === '.eam';
+        if (this.fileExtensions.includes(uri.path.ext)) {
+            return true;
+        }
+        return false;
     }
 
     supportGraphicalComparison(): boolean {
-      return true;
+        return false;
     }
 
     getComparisonJarPath(): string {
-      console.log("dir: " + __dirname);
-      return path.resolve(__dirname, '..', '..', 'server', 'model-comparison-1.0.jar');
+        // eslint-disable-next-line no-undef
+        return path.resolve(__dirname, '..', '..', 'server', 'server.jar');
     }
 
-    // metamodel path & package class ?
+    getDiffViewIcon(): string {
+        return 'far fa-copy';
+    }
+
+    getGraphicalDiffViewIcon(): string {
+        return 'fas fa-project-diagram';
+    }
+
+    abstract getModelJarPath(): string;
+    abstract getModelPackageName(): string;
 }

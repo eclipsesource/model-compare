@@ -21,7 +21,6 @@ import { NodeProps, TreeProps } from '@theia/core/lib/browser/tree/tree-widget';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
 import { v4 } from 'uuid';
-
 import { TreeEditor } from './interfaces';
 import { TreeWidgetWithTitle } from './tree-widget-with-title';
 
@@ -48,11 +47,9 @@ export namespace TreeContextMenu {
 
 @injectable()
 export class MasterTreeWidget extends TreeWidgetWithTitle {
-    protected onTreeWidgetSelectionEmitter = new Emitter<
-        readonly Readonly<TreeEditor.Node>[]
-    >();
-    //protected onDeleteEmitter = new Emitter<Readonly<TreeEditor.Node>>();
-    //protected onAddEmitter = new Emitter<Readonly<AddCommandProperty>>();
+    protected onTreeWidgetSelectionEmitter = new Emitter<readonly Readonly<TreeEditor.Node>[]>();
+    // protected onDeleteEmitter = new Emitter<Readonly<TreeEditor.Node>>();
+    // protected onAddEmitter = new Emitter<Readonly<AddCommandProperty>>();
     protected data: TreeEditor.TreeData;
 
     constructor(
@@ -80,22 +77,17 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         super.init();
 
         this.toDispose.push(this.onTreeWidgetSelectionEmitter);
-        //this.toDispose.push(this.onDeleteEmitter);
-        //this.toDispose.push(this.onAddEmitter);
+        // this.toDispose.push(this.onDeleteEmitter);
+        // this.toDispose.push(this.onAddEmitter);
         this.toDispose.push(
             this.model.onSelectionChanged(e => {
-                this.onTreeWidgetSelectionEmitter.fire(e as readonly Readonly<
-                    TreeEditor.Node
-                >[]);
+                this.onTreeWidgetSelectionEmitter.fire(e as readonly Readonly<TreeEditor.Node>[]);
             })
         );
     }
 
     /** Overrides method in TreeWidget */
-    protected handleClickEvent(
-        node: TreeNode | undefined,
-        event: React.MouseEvent<HTMLElement>
-    ): void {
+    protected handleClickEvent(node: TreeNode | undefined, event: React.MouseEvent<HTMLElement>): void {
         const x = event.target as HTMLElement;
         if (x.classList.contains('node-button')) {
             // Don't do anything because the event is handled in the button's handler
@@ -104,31 +96,21 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         super.handleClickEvent(node, event);
     }
 
-    
-
     /*
      * Overrides TreeWidget.renderTailDecorations
      * Add a add child and a remove button.
      */
-    protected renderTailDecorations(
-        node: TreeNode,
-        props: NodeProps
-    ): React.ReactNode {
+    protected renderTailDecorations(node: TreeNode, props: NodeProps): React.ReactNode {
         const deco = super.renderTailDecorations(node, props);
         if (!TreeEditor.Node.is(node)) {
             return deco;
         }
 
-
-        //const addPlus = this.nodeFactory.hasCreatableChildren(node);
+        // const addPlus = this.nodeFactory.hasCreatableChildren(node);
         // Do not render remove button for root nodes. Root nodes have depth 0.
-        //const addRemoveButton = props.depth > 0;
+        // const addRemoveButton = props.depth > 0;
 
-        return (
-            <React.Fragment>
-                {deco}
-            </React.Fragment>
-        );
+        return <React.Fragment>{deco}</React.Fragment>;
     }
 
     public async setData(data: TreeEditor.TreeData): Promise<void> {
@@ -151,7 +133,9 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
     public findNode(propIndexPaths: { property: string; index?: string }[]): TreeEditor.Node {
         const rootNode = this.model.root as TreeEditor.RootNode;
         return propIndexPaths.reduce((parent, segment) => {
-            const fitting = parent.children.filter(n => TreeEditor.Node.is(n) && n.jsonforms.property === segment.property && n.jsonforms.index === segment.index);
+            const fitting = parent.children.filter(
+                n => TreeEditor.Node.is(n) && n.jsonforms.property === segment.property && n.jsonforms.index === segment.index
+            );
             return fitting[0] as TreeEditor.Node;
         }, rootNode.children[0] as TreeEditor.Node);
     }
@@ -166,16 +150,13 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         this.model.refresh();
     }
 
-    get onSelectionChange(): import('@theia/core').Event<
-        readonly Readonly<TreeEditor.Node>[]
-        > {
+    get onSelectionChange(): import('@theia/core').Event<readonly Readonly<TreeEditor.Node>[]> {
         return this.onTreeWidgetSelectionEmitter.event;
     }
 
     protected async refreshModelChildren(): Promise<void> {
         if (this.model.root && TreeEditor.RootNode.is(this.model.root)) {
-            const newTree =
-                !this.data || this.data.error ? [] : this.nodeFactory.mapDataToNodes(this.data);
+            const newTree = !this.data || this.data.error ? [] : this.nodeFactory.mapDataToNodes(this.data);
             this.model.root.children = newTree;
             this.model.refresh();
         }

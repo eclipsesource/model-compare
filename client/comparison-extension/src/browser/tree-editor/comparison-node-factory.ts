@@ -13,23 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, inject } from 'inversify';
-
-import { v4 } from 'uuid';
-import { TreeData } from './comparison-model-service';
-import { TreeEditor } from '../tree-widget/interfaces';
 import { ILogger } from '@theia/core';
-import { ComparisonTreeEditorWidget } from './ComparisonTreeEditorWidget';
+import { inject, injectable } from 'inversify';
+import { v4 } from 'uuid';
+import { TreeEditor } from '../tree-widget/interfaces';
 import { ComparisonModel } from './comparison-model';
+import { TreeData } from './comparison-model-service';
 import { ComparisonTreeLabelProvider } from './ComparisonLabelProviderContribution';
-
+import { ComparisonTreeEditorWidget } from './ComparisonTreeEditorWidget';
 
 /**
  * Encapsulates logic to create the tree nodes from the tree's input data.
  */
 export const NodeFactory = Symbol('NodeFactory');
 export interface NodeFactory {
-
     /**
      * Recursively creates the tree's nodes from the given data.
      *
@@ -47,12 +44,7 @@ export interface NodeFactory {
      * @param indexOrKey If the data is inserted in an array property, this is the index it is inserted at.
      *                   If the data is inserted into an object, this is the key the data is associated with.
      */
-    mapData(
-        data: any,
-        parent?: Node,
-        property?: string,
-        indexOrKey?: number | string
-    ): Node;
+    mapData(data: any, parent?: Node, property?: string, indexOrKey?: number | string): Node;
 
     /**
      * @param node The node to create a child for
@@ -78,15 +70,14 @@ export namespace CommandIconInfo {
 
 @injectable()
 export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
-
     constructor(
         @inject(ComparisonTreeLabelProvider) private readonly labelProvider: ComparisonTreeLabelProvider,
-        @inject(ILogger) private readonly logger: ILogger) {
-    }   
+        @inject(ILogger) private readonly logger: ILogger
+    ) {}
 
     mapDataToNodes(treeData: TreeEditor.TreeData): TreeEditor.Node[] {
-       const nodes: TreeEditor.Node[] = [];
-        (<any[]> treeData.data).forEach(data => {
+        const nodes: TreeEditor.Node[] = [];
+        (treeData.data as any[]).forEach(data => {
             const node = this.mapData(data);
             if (node) {
                 nodes.push(node);
@@ -95,16 +86,38 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
         return nodes;
     }
 
-    mapData(data: any, parent?: TreeEditor.Node | undefined, property?: string | undefined, indexOrKey?: string | number | undefined): TreeEditor.Node {
+    mapData(
+        data: any,
+        parent?: TreeEditor.Node | undefined,
+        property?: string | undefined,
+        indexOrKey?: string | number | undefined
+    ): TreeEditor.Node {
         if (!data) {
             // sanity check
             this.logger.warn('mapData called without data');
             return undefined;
         }
 
-        let decorationData = {fontData: {}};
+        const decorationData = { fontData: {} };
         if (data.color) {
-            decorationData.fontData["color"] = data.color;
+            let color;
+            switch (data.color) {
+                case 'added':
+                    color = 'green';
+                    break;
+                case 'moved':
+                    color = 'blue';
+                    break;
+                case 'changed':
+                    color = 'blue';
+                    break;
+                case 'deleted':
+                    color = 'red';
+                    break;
+                default:
+                    color = 'gray';
+            }
+            decorationData.fontData['color'] = color;
         }
 
         const node: TreeEditor.Node = {
@@ -120,7 +133,7 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
                 index: typeof indexOrKey === 'number' ? indexOrKey.toFixed(0) : indexOrKey
             }
         };
-        
+
         // containments
         if (parent) {
             parent.children.push(node);
@@ -138,7 +151,20 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
 
     protected defaultNode(): Pick<
         TreeEditor.Node,
-        'children' | 'name' | 'jsonforms' | 'id' | 'icon' | 'description' | 'visible' | 'parent' | 'previousSibling' | 'nextSibling' | 'expanded' | 'selected' | 'focus' | 'decorationData'
+        | 'children'
+        | 'name'
+        | 'jsonforms'
+        | 'id'
+        | 'icon'
+        | 'description'
+        | 'visible'
+        | 'parent'
+        | 'previousSibling'
+        | 'nextSibling'
+        | 'expanded'
+        | 'selected'
+        | 'focus'
+        | 'decorationData'
     > {
         return {
             id: v4(),
@@ -171,5 +197,4 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
     hasCreatableChildren(node: TreeEditor.Node): boolean {
         return node ? ComparisonModel.childrenMapping.get(node.jsonforms.type) !== undefined : false;
     }
-
 }

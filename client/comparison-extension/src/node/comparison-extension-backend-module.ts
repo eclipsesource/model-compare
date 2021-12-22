@@ -13,25 +13,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ConnectionHandler, JsonRpcConnectionHandler } from "@theia/core";
-import { ContainerModule } from "inversify";
-import { ComparisonExtensionConfiguration } from "../browser/comparison-extension-configuration";
-import { BackendClient, COMPARISON_BACKEND_PATH, ComparisonBackendService} from "../common/protocol";
-import { ComparisonBackendServiceImpl } from "./comparison-backend-service";
-import { ComparisonServerExtensionConnection } from "./comparison-server-extension-connection";
+import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
+import { ContainerModule } from 'inversify';
+import { BackendClient, ComparisonBackendService, COMPARISON_BACKEND_PATH } from '../common/protocol';
+import { ComparisonBackendServiceImpl } from './comparison-backend-service';
+import { ComparisonServerExtensionConnection } from './comparison-server-extension-connection';
 
 export default new ContainerModule(bind => {
-    console.log("starting backend");
-    bind(ComparisonBackendService).to(ComparisonBackendServiceImpl).inSingletonScope()
-    bind(ConnectionHandler).toDynamicValue(ctx =>
-        new JsonRpcConnectionHandler<BackendClient>(COMPARISON_BACKEND_PATH, client => {
-            return ctx.container.get<ComparisonBackendServiceImpl>(ComparisonBackendService);
-        })
-    ).inSingletonScope();
+    bind(ComparisonBackendService).to(ComparisonBackendServiceImpl).inSingletonScope();
+    bind(ConnectionHandler)
+        .toDynamicValue(
+            ctx =>
+                new JsonRpcConnectionHandler<BackendClient>(COMPARISON_BACKEND_PATH, client =>
+                    ctx.container.get<ComparisonBackendServiceImpl>(ComparisonBackendService)
+                )
+        )
+        .inSingletonScope();
 
-    bind(ComparisonExtensionConfiguration).toSelf().inSingletonScope();
     bind(ComparisonServerExtensionConnection).toSelf().inSingletonScope();
 });
-
-
-    

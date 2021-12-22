@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -16,51 +16,52 @@
 package org.emfcloud.model_comparison;
 
 public class JSONCompareResponse {
-	private String overviewTree;
-	private String leftTree;
-	private String rightTree;
+	private String changesTree;
+	private String sourceTree;
+	private String targetTree;
 	private String uuidConnection;
 	private String error;
-	
+
 	public JSONCompareResponse() {
 		this("");
 	}
-	
+
 	public JSONCompareResponse(String error) {
 		this("{}", "{}", "{}", "{}", error);
 	}
-	
-	public JSONCompareResponse(String overviewTree, String leftTree, String rightTree, String uuidConnection, String error) {
+
+	public JSONCompareResponse(String changesTree, String sourceTree, String targetTree, String uuidConnection,
+			String error) {
 		super();
-		this.overviewTree = overviewTree;
-		this.leftTree = leftTree;
-		this.rightTree = rightTree;
+		this.changesTree = changesTree;
+		this.sourceTree = sourceTree;
+		this.targetTree = targetTree;
 		this.uuidConnection = uuidConnection;
 		this.error = error;
 	}
 
-	public String getOverviewTree() {
-		return overviewTree;
+	public String getChangesTree() {
+		return changesTree;
 	}
 
-	public void setOverviewTree(String overviewTree) {
-		this.overviewTree = overviewTree;
+	public void setChangesTree(String changesTree) {
+		this.changesTree = changesTree;
 	}
 
-	public String getLeftTree() {
-		return leftTree;
+	public String getSourceTree() {
+		return sourceTree;
 	}
 
-	public void setLeftTree(String leftTree) {
-		this.leftTree = leftTree;
+	public void setSourceTree(String sourceTree) {
+		this.sourceTree = sourceTree;
 	}
 
-	public String getRightTree() {
-		return rightTree;
+	public String getTargetTree() {
+		return targetTree;
 	}
 
-	public void setRightTree(String rightTree) {
-		this.rightTree = rightTree;
+	public void setTargetTree(String targetTree) {
+		this.targetTree = targetTree;
 	}
 
 	public String getUuidConnection() {
@@ -72,32 +73,32 @@ public class JSONCompareResponse {
 	}
 
 	public static String escapeJSON(String raw) {
-	    String escaped = raw;
-	    escaped = escaped.replace("\\", "\\\\");
-	    escaped = escaped.replace("\"", "\\\"");
-	    escaped = escaped.replace("\b", "\\b");
-	    escaped = escaped.replace("\f", "\\f");
-	    escaped = escaped.replace("\n", "\\n");
-	    escaped = escaped.replace("\r", "\\r");
-	    escaped = escaped.replace("\t", "\\t");
-	    return escaped;
+		String escaped = raw;
+		escaped = escaped.replace("\\", "\\\\");
+		escaped = escaped.replace("\"", "\\\"");
+		escaped = escaped.replace("\b", "\\b");
+		escaped = escaped.replace("\f", "\\f");
+		escaped = escaped.replace("\n", "\\n");
+		escaped = escaped.replace("\r", "\\r");
+		escaped = escaped.replace("\t", "\\t");
+		return escaped;
 	}
 
 	public String toString() {
-		String overviewTree = this.overviewTree;
-		if (overviewTree.matches("\\s*\\{\\s*\\}\\s*")) {
+		String changesTree = this.changesTree;
+		if (changesTree.matches("\\s*\\{\\s*\\}\\s*")) {
 			TreeNodeCollection collection = new TreeNodeCollection();
 			collection.addChild(new JSONTreeNode("information", "< No differences detected for this comparison. >"));
-			overviewTree = collection.toString();
+			changesTree = collection.toString();
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
-		sb.append("\"").append("overviewTree").append("\": ").append(overviewTree);
+		sb.append("\"").append("changesTree").append("\": ").append(changesTree);
 		sb.append(",\n");
-		sb.append("\"").append("leftTree").append("\": ").append(leftTree);
+		sb.append("\"").append("sourceTree").append("\": ").append(sourceTree);
 		sb.append(",\n");
-		sb.append("\"").append("rightTree").append("\": ").append(rightTree);
+		sb.append("\"").append("targetTree").append("\": ").append(targetTree);
 		sb.append(",\n");
 		sb.append("\"").append("uuidConnection").append("\": ").append(uuidConnection);
 		sb.append(",\n");

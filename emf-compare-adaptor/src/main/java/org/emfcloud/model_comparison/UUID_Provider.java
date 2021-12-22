@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -21,19 +21,60 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class UUID_Provider {
-	
+
+	static String backupUUID = "unresolved";
+
 	public static String getUUID(EObject obj) {
-		return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL, normalize(EcoreUtil.getURI(obj).toString())).toString();
+		try {
+			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
+					normalize(EcoreUtil.getURI(obj).toString().split("#_")[1])).toString();
+		} catch (Exception e) {
+			return backupUUID;
+		}
 	}
-	
+
 	public static String getUUID(EObject owner, EAttribute attribute) {
-		return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL, normalize(EcoreUtil.getURI(owner).toString()) + normalize(EcoreUtil.getURI(attribute).toString())).toString();
+		try {
+			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
+					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+							+ normalize(EcoreUtil.getURI(attribute).toString()))
+					.toString();
+		} catch (Exception e) {
+			return backupUUID;
+		}
 	}
-	
+
+	public static String getUUID(EObject owner, EReference reference) {
+		try {
+			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
+					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+							+ normalize(EcoreUtil.getURI(reference).toString()))
+					.toString();
+		} catch (Exception e) {
+			return backupUUID;
+		}
+	}
+
 	public static String getUUID(EObject owner, EReference reference, EObject ref) {
-		return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL, normalize(EcoreUtil.getURI(owner).toString()) + normalize(EcoreUtil.getURI(reference).toString()) + normalize(EcoreUtil.getURI(ref).toString())).toString();
+		try {
+			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
+					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+							+ normalize(EcoreUtil.getURI(reference).toString())
+							+ normalize(EcoreUtil.getURI(ref).toString()))
+					.toString();
+		} catch (Exception e) {
+			return backupUUID;
+		}
 	}
-	
+
+	public static String getGraphicalUUID(EObject obj) {
+		try {
+			return EcoreUtil.getURI(obj).toString().split("#_")[1];
+		} catch (Exception e) {
+			return backupUUID;
+		}
+	}
+
 	private static String normalize(String uri) {
 		if (uri.startsWith("file:///")) {
 			return uri.replaceFirst("file:///", "file:/");

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 EclipseSource and others.
+ * Copyright (c) 2021 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -20,25 +20,25 @@ import java.util.List;
 
 public class TreeNodeCollection {
 	protected List<JSONTreeNode> children = new ArrayList<>();
-	
+
 	public TreeNodeCollection() {
-		
+
 	}
-	
+
 	public void addChild(JSONTreeNode node) {
 		if (node != null) {
 			this.children.add(node);
 		}
 	}
-	
+
 	public List<JSONTreeNode> getChildren() {
 		return this.children;
 	}
-	
+
 	public int getChildrenCount() {
 		return this.children.size();
 	}
-	
+
 	public JSONTreeNode findChildByUUID(String uuid) {
 		for (JSONTreeNode jsonTreeNode : this.children) {
 			if (jsonTreeNode.getUuid().equals(uuid)) {
@@ -47,16 +47,16 @@ public class TreeNodeCollection {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.toString(0);
 	}
-	
+
 	public String toString(int preTabs) {
-		String prefix = getTabs(preTabs);		
+		String prefix = getTabs(preTabs);
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append(prefix).append("[\n");
 		for (JSONTreeNode jsonTreeNode : this.children) {
 			sb.append(jsonTreeNode.toString(preTabs + 1));
@@ -65,13 +65,13 @@ public class TreeNodeCollection {
 			}
 		}
 		sb.append(prefix).append("]\n");
-		
+
 		return sb.toString();
 	}
-	
+
 	protected String getTabs(int n) {
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i<n; i++) {
+		for (int i = 0; i < n; i++) {
 			sb.append("\t");
 		}
 		return sb.toString();

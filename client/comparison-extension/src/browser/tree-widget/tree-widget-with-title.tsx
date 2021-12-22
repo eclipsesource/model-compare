@@ -13,18 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { TreeWidget } from '@theia/core/lib/browser';
 import { injectable } from 'inversify';
 import * as React from 'react';
-import { TreeWidget } from "@theia/core/lib/browser";
 
 @injectable()
 export class TreeWidgetWithTitle extends TreeWidget {
-
-    treeTitle: string = "Title";
+    treeTitle = 'Title';
 
     protected render(): React.ReactNode {
-        return <div><h3>{this.treeTitle}</h3>
-            {super.render()}
-        </div>
+        return (
+            <div>
+                <h3>{this.treeTitle}</h3>
+                {super.render()}
+            </div>
+        );
     }
 }

@@ -17,19 +17,15 @@ import { ILogger } from '@theia/core';
 import { Navigatable, Title, Widget } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-
 import { MasterTreeWidget } from './master-tree-widget';
 import { BaseTreeEditorWidget } from './tree-editor-widget';
 
-export const NavigatableTreeEditorOptions = Symbol(
-    'NavigatableTreeEditorOptions'
-);
+export const NavigatableTreeEditorOptions = Symbol('NavigatableTreeEditorOptions');
 export interface NavigatableTreeEditorOptions {
     uri: URI;
 }
 
 export abstract class NavigatableTreeEditorWidget extends BaseTreeEditorWidget implements Navigatable {
-
     constructor(
         protected readonly myTreeWidgetModel1: MasterTreeWidget,
         protected readonly myTreeWidgetModel2: MasterTreeWidget,
@@ -39,14 +35,7 @@ export abstract class NavigatableTreeEditorWidget extends BaseTreeEditorWidget i
         readonly widget_id: string,
         protected readonly options: NavigatableTreeEditorOptions
     ) {
-        super(
-            myTreeWidgetModel1,
-            myTreeWidgetModel2,
-            treeWidget3,
-            workspaceService,
-            logger,
-            widget_id
-        );
+        super(myTreeWidgetModel1, myTreeWidgetModel2, treeWidget3, workspaceService, logger, widget_id);
     }
 
     /** The uri of the editor's resource. */
@@ -63,8 +52,8 @@ export abstract class NavigatableTreeEditorWidget extends BaseTreeEditorWidget i
     }
 
     protected configureTitle(title: Title<Widget>): void {
-        title.label = "this.options.uri.path.base";
-        title.caption = "this.options.uri.toString()";
+        title.label = 'this.options.uri.path.base';
+        title.caption = 'this.options.uri.toString()';
         title.closable = true;
     }
 }

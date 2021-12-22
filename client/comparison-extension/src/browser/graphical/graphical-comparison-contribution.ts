@@ -13,24 +13,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { CommandRegistry, Command, MenuModelRegistry, SelectionService } from '@theia/core/lib/common';
+/* eslint-disable brace-style */
 import { AbstractViewContribution } from '@theia/core/lib/browser';
-import { injectable, inject } from 'inversify';
-import { NavigatorContextMenu, FileNavigatorContribution } from '@theia/navigator/lib/browser/navigator-contribution';
-import { UriCommandHandler, UriAwareCommandHandler } from '@theia/core/lib/common/uri-command-handler';
-import URI from '@theia/core/lib/common/uri';
-import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from './graphical-comparison-widget';
+import { Command, CommandRegistry, MenuModelRegistry, SelectionService } from '@theia/core/lib/common';
+import URI from '@theia/core/lib/common/uri';
+import { UriAwareCommandHandler, UriCommandHandler } from '@theia/core/lib/common/uri-command-handler';
+import { FileNavigatorContribution, NavigatorContextMenu } from '@theia/navigator/lib/browser/navigator-contribution';
+import { WorkspaceService } from '@theia/workspace/lib/browser';
+import { inject, injectable } from 'inversify';
 import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
-import { GraphicalComparisonOpener } from './graphical-comparison-opener';
 import { ComparisonOrderDialog } from '../comparison-order-dialog';
+import { GraphicalComparisonOpener } from './graphical-comparison-opener';
+import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from './graphical-comparison-widget';
 
 export namespace GraphicalComparisonCommands {
     export const FILE_COMPARE_GRAPHICALLY: Command = {
         id: 'file.compare.graphical',
-        category: "Comparison",
+        category: 'Comparison',
         label: 'Compare graphically'
+    };
+    export const FILE_COMPARE_GRAPHICALLY_OPEN: Command = {
+        id: 'file.compare.graphical.open'
     };
 }
 
@@ -39,8 +43,10 @@ export namespace ScmNavigatorMoreToolbarGroups {
 }
 
 @injectable()
-export class GraphicalComparisonContribution extends AbstractViewContribution<GraphicalComparisonWidget> implements TabBarToolbarContribution {
-
+export class GraphicalComparisonContribution
+    extends AbstractViewContribution<GraphicalComparisonWidget>
+    implements TabBarToolbarContribution
+{
     @inject(CommandRegistry)
     protected readonly commandRegistry: CommandRegistry;
 
@@ -53,8 +59,8 @@ export class GraphicalComparisonContribution extends AbstractViewContribution<Gr
     constructor(
         @inject(SelectionService) protected readonly selectionService: SelectionService,
         @inject(GraphicalComparisonOpener) protected readonly graphicalOpener: GraphicalComparisonOpener,
-        @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration) {
-            
+        @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration
+    ) {
         super({
             widgetId: GraphicalComparisonWidget.WIDGET_ID,
             widgetName: GraphicalComparisonWidget.WIDGET_LABEL,
@@ -71,30 +77,44 @@ export class GraphicalComparisonContribution extends AbstractViewContribution<Gr
     }
 
     registerCommands(commands: CommandRegistry): void {
-        commands.registerCommand(GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY, this.newMultiUriAwareCommandHandler({
-            isVisible: uris => this.showGraphicallyCommand(uris),
-            isEnabled: uris => this.showGraphicallyCommand(uris),
-            execute: async uris => {
-                const [left, right] = uris;
-                const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
-                dialog.open().then(() => {
-                    this.graphicalOpener.getHighlights(dialog.getLeft(), dialog.getRight()).then(async (highlights: any) => {
-                        const leftWidget = await this.graphicalOpener.getLeftDiagram(new URI(dialog.getLeft()), highlights);
-                        const rightWidget = await this.graphicalOpener.getRightDiagram(new URI(dialog.getRight()), highlights);
-                        const options: GraphicalComparisonWidgetOptions = {
-                            left: leftWidget,
-                            right: rightWidget
-                        };
-                        this.showGraphicalComparisonWidget(options);
+        commands.registerCommand(
+            GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY,
+            this.newMultiUriAwareCommandHandler({
+                isVisible: uris => this.showGraphicallyCommand(uris),
+                isEnabled: uris => this.showGraphicallyCommand(uris),
+                execute: async uris => {
+                    const [left, right] = uris;
+                    const dialog: ComparisonOrderDialog = new ComparisonOrderDialog(String(left), String(right));
+                    dialog.open().then(() => {
+                        commands.executeCommand(
+                            GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY_OPEN.id,
+                            dialog.getSource(),
+                            dialog.getTarget()
+                        );
                     });
+                }
+            })
+        );
+        commands.registerCommand(GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY_OPEN, {
+            execute: (left, right) => {
+                this.graphicalOpener.getHighlights(left, right).then(async (highlights: any) => {
+                    const leftWidget = await this.graphicalOpener.getLeftDiagram(new URI(left), highlights);
+                    const rightWidget = await this.graphicalOpener.getRightDiagram(new URI(right), highlights);
+                    const options: GraphicalComparisonWidgetOptions = {
+                        left: leftWidget,
+                        right: rightWidget
+                    };
+                    this.showGraphicalComparisonWidget(options);
                 });
             }
-        }));
+        });
     }
 
     showGraphicallyCommand(uris: URI[]): boolean {
         if (this.config.supportGraphicalComparison()) {
-            if (uris.length !== 2) return false;
+            if (uris.length !== 2) {
+                return false;
+            }
             return this.config.canHandle(uris[0]) && this.config.canHandle(uris[1]);
         }
         return false;
@@ -105,7 +125,7 @@ export class GraphicalComparisonContribution extends AbstractViewContribution<Gr
             id: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
             command: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.id,
             tooltip: GraphicalComparisonCommands.FILE_COMPARE_GRAPHICALLY.label,
-            group: ScmNavigatorMoreToolbarGroups.SCM,
+            group: ScmNavigatorMoreToolbarGroups.SCM
         });
     }
 
@@ -116,7 +136,7 @@ export class GraphicalComparisonContribution extends AbstractViewContribution<Gr
             activate: true
         });
     }
-    
+
     protected newMultiUriAwareCommandHandler(handler: UriCommandHandler<URI[]>): UriAwareCommandHandler<URI[]> {
         return new UriAwareCommandHandler(this.selectionService, handler, { multi: true });
     }
