@@ -88,7 +88,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
             this.comparisonResponse = response;
 
             if (response.error.trim() !== '') {
-                // this.logger.error(response.error);
                 this.showInformation(response.error, 'red', 'fas fa-exclamation-triangle red');
                 return;
             }

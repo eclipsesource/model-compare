@@ -29,4 +29,8 @@ export class CoffeeComparisonExtensionConfiguration extends ComparisonExtensionC
     getModelPackageName(): string {
         return 'org.eclipse.emfcloud.coffee.CoffeePackage';
     }
+
+    getComparisonJarPath(): string {
+        return path.resolve(__dirname, '..', '..', 'server', 'server.jar');
+    }
 }

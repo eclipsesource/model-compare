@@ -56,10 +56,10 @@ export class ComparisonServerExtensionConnection {
             this.addQuotes(merges)
         );
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             const process = this.spawnProcess(command, args);
             if (process === undefined || process.process === undefined || process === undefined || process.process === undefined) {
-                resolve('Process not spawned');
+                reject('Process not spawned');
                 return;
             }
 
@@ -72,13 +72,11 @@ export class ComparisonServerExtensionConnection {
             }
 
             process.process.on('exit', (code: any) => {
-                switch (code) {
-                    case 0:
-                        resolve(out);
-                        break;
-                    default:
-                        resolve('UNKNOWN ERROR');
-                        break;
+                const shouldResolve = this.handleExit(code, out);
+                if (shouldResolve) {
+                    resolve(out);
+                } else {
+                    reject();
                 }
             });
         });
@@ -112,10 +110,10 @@ export class ComparisonServerExtensionConnection {
             this.addQuotes(base)
         );
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             const process = this.spawnProcess(command, args);
             if (process === undefined || process.process === undefined || process === undefined || process.process === undefined) {
-                resolve('Process not spawned');
+                reject('Process not spawned');
                 return;
             }
 
@@ -128,13 +126,11 @@ export class ComparisonServerExtensionConnection {
             }
 
             process.process.on('exit', (code: any) => {
-                switch (code) {
-                    case 0:
-                        resolve(out);
-                        break;
-                    default:
-                        resolve('UNKNOWN ERROR');
-                        break;
+                const shouldResolve = this.handleExit(code, out);
+                if (shouldResolve) {
+                    resolve(out);
+                } else {
+                    reject();
                 }
             });
         });
@@ -170,10 +166,10 @@ export class ComparisonServerExtensionConnection {
             this.addQuotes(merges)
         );
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             const process = this.spawnProcess(command, args);
             if (process === undefined || process.process === undefined || process === undefined || process.process === undefined) {
-                resolve('Process not spawned');
+                reject('Process not spawned');
                 return;
             }
 
@@ -186,16 +182,32 @@ export class ComparisonServerExtensionConnection {
             }
 
             process.process.on('exit', (code: any) => {
-                switch (code) {
-                    case 0:
-                        resolve(out);
-                        break;
-                    default:
-                        resolve('UNKNOWN ERROR');
-                        break;
+                const shouldResolve = this.handleExit(code, out);
+                if (shouldResolve) {
+                    resolve(out);
+                } else {
+                    reject();
                 }
             });
         });
+    }
+
+    protected handleExit(code: number, output: string): boolean {
+        switch (code) {
+            case 0:
+                return true;
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                console.error(`EMFCompare Framework: ${output}`);
+                return false;
+            default:
+                console.error('UNKNOWN ERROR');
+                return false;
+        }
     }
 
     private spawnProcess(command: string, args?: string[]): RawProcess | undefined {

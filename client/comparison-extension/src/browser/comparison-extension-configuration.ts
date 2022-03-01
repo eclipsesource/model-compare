@@ -15,7 +15,6 @@
  ********************************************************************************/
 import URI from '@theia/core/lib/common/uri';
 import { injectable } from 'inversify';
-import * as path from 'path';
 
 @injectable()
 export abstract class ComparisonExtensionConfiguration {
@@ -32,11 +31,6 @@ export abstract class ComparisonExtensionConfiguration {
         return false;
     }
 
-    getComparisonJarPath(): string {
-        // eslint-disable-next-line no-undef
-        return path.resolve(__dirname, '..', '..', 'server', 'server.jar');
-    }
-
     getDiffViewIcon(): string {
         return 'far fa-copy';
     }
@@ -45,6 +39,7 @@ export abstract class ComparisonExtensionConfiguration {
         return 'fas fa-project-diagram';
     }
 
+    abstract getComparisonJarPath(): string;
     abstract getModelJarPath(): string;
     abstract getModelPackageName(): string;
 }

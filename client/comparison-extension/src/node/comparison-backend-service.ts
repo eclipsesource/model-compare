@@ -21,38 +21,17 @@ export class ComparisonBackendServiceImpl {
     constructor(@inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) {}
 
     getNewComparison(source: string, target: string, merges?: string, base = 'undefined'): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.serverConnection
-                .compare(source, target, base, merges)
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(err => reject(err));
-        });
+        return this.serverConnection.compare(source, target, base, merges);
     }
 
     getHighlight(source: string, target: string, base = 'undefined'): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.serverConnection
-                .highlight(source, target, base)
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(err => reject(err));
-        });
+        return this.serverConnection.highlight(source, target, base);
     }
 
     merge(source: string, target: string, base: string, merges: string, mergeConflicts: string): Promise<string> {
         if (base.trim() === '') {
             base = 'undefined';
         }
-        return new Promise((resolve, reject) => {
-            this.serverConnection
-                .merge(source, target, base, merges, mergeConflicts)
-                .then(response => {
-                    resolve(response);
-                })
-                .catch(err => reject(err));
-        });
+        return this.serverConnection.merge(source, target, base, merges, mergeConflicts);
     }
 }

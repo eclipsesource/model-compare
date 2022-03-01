@@ -1,6 +1,14 @@
 # Server
 
-This java project bundles a headless jar, that triggers EMF Compare and provides the results in a way that the `comparison-extension` can display them.
+This java project bundles a headless jar that triggers EMF Compare and provides the results in a way that the `comparison-extension` can display them.
+
+## Bundle the jar
+
+Currently the jar can only be exported from Eclipse.
+
+1. Open this project in Eclipse as a Maven project
+2. Run the `ModelCompare` class as a Java Application (this will create a launch config)
+3. Right-click the project -> Export -> Runnable Jar File -> Choose the launch config and destination
 
 ## Debug the jar
 
@@ -13,13 +21,13 @@ java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044 -jar 
 So for example:
 
 ```command
-java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044 
-    -jar server.jar 
-    -source file:///<source-file-path> 
-    -model <coffee-model-jar-path> 
-    -package org.eclipse.emfcloud.coffee.CoffeePackage 
-    -target file:///<target-file-path> 
-    -operation comparison 
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044
+    -jar server.jar
+    -source file:///<source-file-path>
+    -model <coffee-model-jar-path>
+    -package org.eclipse.emfcloud.coffee.CoffeePackage
+    -target file:///<target-file-path>
+    -operation comparison
     -base file:///<base-file-path>
 ```
 
