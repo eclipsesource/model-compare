@@ -76,8 +76,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
     ) {
         super(myTreeWidgetOverview, myTreeWidgetModel1, myTreeWidgetModel2, workspaceService, logger, ComparisonTreeEditorWidget.WIDGET_ID);
 
-        // this.showInformation("loading...", "gray");
-
         window.onbeforeunload = () => this.dispose();
     }
 

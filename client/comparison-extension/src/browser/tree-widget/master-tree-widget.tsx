@@ -48,8 +48,6 @@ export namespace TreeContextMenu {
 @injectable()
 export class MasterTreeWidget extends TreeWidgetWithTitle {
     protected onTreeWidgetSelectionEmitter = new Emitter<readonly Readonly<TreeEditor.Node>[]>();
-    // protected onDeleteEmitter = new Emitter<Readonly<TreeEditor.Node>>();
-    // protected onAddEmitter = new Emitter<Readonly<AddCommandProperty>>();
     protected data: TreeEditor.TreeData;
 
     constructor(
@@ -77,8 +75,6 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         super.init();
 
         this.toDispose.push(this.onTreeWidgetSelectionEmitter);
-        // this.toDispose.push(this.onDeleteEmitter);
-        // this.toDispose.push(this.onAddEmitter);
         this.toDispose.push(
             this.model.onSelectionChanged(e => {
                 this.onTreeWidgetSelectionEmitter.fire(e as readonly Readonly<TreeEditor.Node>[]);
@@ -105,10 +101,6 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
         if (!TreeEditor.Node.is(node)) {
             return deco;
         }
-
-        // const addPlus = this.nodeFactory.hasCreatableChildren(node);
-        // Do not render remove button for root nodes. Root nodes have depth 0.
-        // const addRemoveButton = props.depth > 0;
 
         return <React.Fragment>{deco}</React.Fragment>;
     }

@@ -93,7 +93,6 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
         indexOrKey?: string | number | undefined
     ): TreeEditor.Node {
         if (!data) {
-            // sanity check
             this.logger.warn('mapData called without data');
             return undefined;
         }

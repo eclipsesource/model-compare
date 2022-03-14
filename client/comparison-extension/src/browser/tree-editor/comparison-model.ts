@@ -19,7 +19,6 @@ import { TreeEditor } from '../tree-widget/interfaces';
 export namespace ComparisonModel {
     export namespace Type {
         export const DiagramLandscape = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramLandscape';
-        // export const DiagramNode = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramNode';
         export const DiagramNodeAttribute = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramNodeAttribute';
         export const DiagramEdge = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramEdge';
         export const DiagramEdgeMember = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramEdgeMember';
