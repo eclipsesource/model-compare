@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.16.0",
-    "rimraf": "latest",
-    "typescript": "latest"
+    "rimraf": "^2.6.1",
+    "typescript": "^3.9.2"
   },
   "scripts": {
     "all": "yarn run prepare && yarn run lint && yarn run build",
