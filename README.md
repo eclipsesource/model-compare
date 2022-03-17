@@ -4,7 +4,7 @@ A model comparison framework for EMF.cloud
 
 > **_Disclaimer_**
 > This project is a Proof of Concept for how to enable EMF Compare in a Theia application. It is not in a state to consume it and/or use it in production.
-> The project is the result of a student thesis, is provided as is and will not be maintained actively.
+> The project is the result of a student thesis, is provided as is and will not be maintained actively for now. If you are interested in a stable version of this feature, please get in [contact with us](https://www.eclipse.org/emfcloud/contact/).
 
 ## Project structure
 
