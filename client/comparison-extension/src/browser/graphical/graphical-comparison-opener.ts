@@ -13,28 +13,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
+import { GLSPDiagramWidget } from '@eclipse-glsp/theia-integration/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { ComparisonBackendService } from '../../common/protocol';
-import { GLSPDiagramWidget } from "@eclipse-glsp/theia-integration/lib/browser";
 
 @injectable()
 export class GraphicalComparisonOpener {
+    constructor(@inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService) {}
 
-  constructor(
-    @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService) {
-  }
+    async getLeftDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
+        throw Error('Needs to be implemented in the specific editors');
+    }
 
-  async getLeftDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
-    throw Error("Needs to be implemented in the specific editors");
-  }
+    async getRightDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
+        throw Error('Needs to be implemented in the specific editors');
+    }
 
-  async getRightDiagram(uri: URI, highlights: any): Promise<GLSPDiagramWidget> {
-    throw Error("Needs to be implemented in the specific editors");
-  }
-
-  getHighlights(left: string, right: string, origin: string = "undefined"): any {
-    return this.comparisonBackendService.getHighlight(left, right, origin);
-  }
+    getHighlights(source: string, target: string, base = 'undefined'): any {
+        return this.comparisonBackendService.getHighlight(source, target, base);
+    }
 }

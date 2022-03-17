@@ -14,15 +14,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 .yellow {
-    color: yellow;
+    color: blue;
 }
 
 .blue {
-    color: #00BFFF;
+    color: #00bfff;
 }
 
 .red {
-    color: #FF6347;
+    color: #ff6347;
 }
 
 .green {

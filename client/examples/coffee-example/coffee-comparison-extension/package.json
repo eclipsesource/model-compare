@@ -1,0 +1,34 @@
+{
+  "name": "coffee-comparison-extension",
+  "keywords": [
+    "theia-extension"
+  ],
+  "version": "0.0.1",
+  "files": [
+    "lib",
+    "src",
+    "style"
+  ],
+  "dependencies": {
+    "comparison-extension": "0.0.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "all": "yarn run prepare && yarn run lint && yarn run build",
+    "prepare": "yarn run clean",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/coffee-comparison-frontend-module",
+      "backend": "lib/node/coffee-comparison-backend-module"
+    }
+  ]
+}

@@ -13,39 +13,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable, inject } from "inversify";
-import { ComparisonServerExtensionConnection } from "./comparison-server-extension-connection";
+import { inject, injectable } from 'inversify';
+import { ComparisonServerExtensionConnection } from './comparison-server-extension-connection';
 
 @injectable()
 export class ComparisonBackendServiceImpl {
+    constructor(@inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) {}
 
-    constructor(
-        @inject(ComparisonServerExtensionConnection) private readonly serverConnection: ComparisonServerExtensionConnection) { }
-
-    getNewComparison(left: string, right: string, origin: string, merges: string): Promise<string>{
-        if (origin.trim() === "") origin = "undefined";
-        return new Promise((resolve, reject) => {
-            this.serverConnection.compare(left, right, origin, merges).then(response => {
-                resolve(response);
-            }).catch(err => reject(err));
-        });
+    getNewComparison(source: string, target: string, merges?: string, base = 'undefined'): Promise<string> {
+        return this.serverConnection.compare(source, target, base, merges);
     }
 
-    getHighlight(left: string, right: string, origin: string): Promise<string>{
-        if (origin.trim() === "") origin = "undefined";
-        return new Promise((resolve, reject) => {
-            this.serverConnection.highlight(left, right, origin).then(response => {
-                resolve(response);
-            }).catch(err => reject(err));
-        });
+    getHighlight(source: string, target: string, base = 'undefined'): Promise<string> {
+        return this.serverConnection.highlight(source, target, base);
     }
 
-    merge(left: string, right: string, origin: string, merges: string, mergeConflicts: string): Promise<string> {
-        if (origin.trim() === "") origin = "undefined";
-        return new Promise((resolve, reject) => {
-            this.serverConnection.merge(left, right, origin, merges, mergeConflicts).then(response => {
-                resolve(response);
-            }).catch(err => reject(err));
-        });
+    merge(source: string, target: string, base: string, merges: string, mergeConflicts: string): Promise<string> {
+        if (base.trim() === '') {
+            base = 'undefined';
+        }
+        return this.serverConnection.merge(source, target, base, merges, mergeConflicts);
     }
 }

@@ -13,14 +13,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import * as React from 'react';
-import { injectable, postConstruct } from 'inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
+import { injectable, postConstruct } from 'inversify';
+import * as React from 'react';
 
 @injectable()
 export class TextWidget extends ReactWidget {
     protected text: string;
-    
+
     constructor(text: string) {
         super();
         this.id = 'text-test-widget';

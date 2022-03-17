@@ -19,7 +19,6 @@ import { TreeEditor } from '../tree-widget/interfaces';
 export namespace ComparisonModel {
     export namespace Type {
         export const DiagramLandscape = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramLandscape';
-        //export const DiagramNode = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramNode';
         export const DiagramNodeAttribute = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramNodeAttribute';
         export const DiagramEdge = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramEdge';
         export const DiagramEdgeMember = 'http://www.eclipsesource.com/modelserver/example/comparisonmodel#//DiagramEdgeMember';
@@ -36,26 +35,17 @@ export namespace ComparisonModel {
         }
     }
 
-    const components = [
-        Type.DiagramNode,
-        Type.DiagramEdge
-    ];
+    const components = [Type.DiagramNode, Type.DiagramEdge];
 
-    const nodes_children = [
-        Type.DiagramNodeAttribute,
-        Type.DiagramNode,
-        Type.DiagramEdge
-    ];
+    const nodesChildren = [Type.DiagramNodeAttribute, Type.DiagramNode, Type.DiagramEdge];
 
-    const edges_children = [
-        Type.DiagramEdgeMember,
-        Type.DiagramEdgeAttribute
-    ];
+    const edgesChildren = [Type.DiagramEdgeMember, Type.DiagramEdgeAttribute];
 
     /** Maps types to their creatable children */
     export const childrenMapping: Map<string, TreeEditor.ChildrenDescriptor[]> = new Map([
         [
-            Type.DiagramLandscape, [
+            Type.DiagramLandscape,
+            [
                 {
                     property: 'children',
                     children: components
@@ -63,21 +53,22 @@ export namespace ComparisonModel {
             ]
         ],
         [
-            Type.DiagramNode, [
+            Type.DiagramNode,
+            [
                 {
                     property: 'children',
-                    children: nodes_children
+                    children: nodesChildren
                 }
             ]
         ],
         [
-            Type.DiagramEdge, [
+            Type.DiagramEdge,
+            [
                 {
                     property: 'children',
-                    children: edges_children
+                    children: edgesChildren
                 }
             ]
         ]
     ]);
-
 }

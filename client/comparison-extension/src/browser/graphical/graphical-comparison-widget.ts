@@ -13,27 +13,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { injectable } from 'inversify';
-
-import { Widget, BaseWidget, Message, StatefulWidget, SplitPanel, Title } from '@theia/core/lib/browser';
-import { GLSPDiagramWidget } from "@eclipse-glsp/theia-integration/lib/browser";
 import { FitToScreenAction } from '@eclipse-glsp/client';
-import { DiagramWidget } from "sprotty-theia";
+import { GLSPDiagramWidget } from '@eclipse-glsp/theia-integration/lib/browser';
+import { BaseWidget, Message, SplitPanel, StatefulWidget, Title, Widget } from '@theia/core/lib/browser';
+import { inject, injectable } from 'inversify';
+import { DiagramWidget } from 'sprotty-theia';
+import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
 
-export const GraphicalComparisonWidgetOptions = Symbol(
-    'GraphicalComparisonWidgetOptions'
-);
+export const GraphicalComparisonWidgetOptions = Symbol('GraphicalComparisonWidgetOptions');
 export interface GraphicalComparisonWidgetOptions {
-    left: GLSPDiagramWidget,
-    right: GLSPDiagramWidget
+    left: GLSPDiagramWidget;
+    right: GLSPDiagramWidget;
 }
 
 @injectable()
-export class GraphicalComparisonWidget extends BaseWidget implements StatefulWidget{
-
+export class GraphicalComparisonWidget extends BaseWidget implements StatefulWidget {
     protected lastFocusLeft = true;
     protected splitPanel: SplitPanel;
     protected options: GraphicalComparisonWidgetOptions;
+
+    @inject(ComparisonExtensionConfiguration) protected readonly config: ComparisonExtensionConfiguration;
 
     constructor() {
         super();
@@ -42,8 +41,18 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         this.addClass('widget-view');
 
         this.splitPanel = new SplitPanel();
-        this.splitPanel.orientation = "horizontal";
+        this.splitPanel.orientation = 'horizontal';
         this.splitPanel.spacing = 8;
+    }
+
+    dispose(): void {
+        if (this.isDisposed) {
+            return;
+        }
+        this.options.left.dispose();
+        this.options.right.dispose();
+        super.dispose();
+        this.toDispose.dispose();
     }
 
     setContent(options: GraphicalComparisonWidgetOptions): void {
@@ -73,10 +82,10 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         this.options.right.getSvgElement().then(_ => {
             this.options.right.actionDispatcher.dispatch(new FitToScreenAction([]));
         });
-        this.options.left.node.addEventListener('focusin', (event) => {
+        this.options.left.node.addEventListener('focusin', event => {
             this.lastFocusLeft = true;
         });
-        this.options.right.node.addEventListener('focusin', (event) => {
+        this.options.right.node.addEventListener('focusin', event => {
             this.lastFocusLeft = false;
         });
     }
@@ -103,16 +112,16 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
     }
 
     restoreState(oldState: object): void {
-        this.setContent(<GraphicalComparisonWidgetOptions> oldState);
+        this.setContent(oldState as GraphicalComparisonWidgetOptions);
     }
 
     protected configureTitle(title: Title<Widget>): void {
         if (this.options !== undefined) {
-            title.label = this.options.left.title.label + " &#10231; " + this.options.right.title.label;
+            title.label = this.options.left.title.label + ' \u2192 ' + this.options.right.title.label;
         }
         title.caption = GraphicalComparisonWidget.WIDGET_LABEL;
         title.closable = true;
-        title.iconClass = 'fas fa-columns file-icon';
+        title.iconClass = `${this.config.getGraphicalDiffViewIcon()} file-icon`;
     }
 
     get diagramWidget(): DiagramWidget {
@@ -130,5 +139,5 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
 export namespace GraphicalComparisonWidget {
     export const WIDGET_ID = 'graphical-model-comparison-view';
     export const EDITOR_ID = 'com.eclipsesource.comparison.graphical.comparison.view';
-    export const WIDGET_LABEL = "Graphical comparison view";
+    export const WIDGET_LABEL = 'Graphical comparison view';
 }

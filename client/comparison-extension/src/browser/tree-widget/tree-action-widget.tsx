@@ -13,9 +13,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import * as React from 'react';
-import { injectable, postConstruct } from 'inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
+import { injectable, postConstruct } from 'inversify';
+import * as React from 'react';
 import { BaseTreeEditorWidget } from './tree-editor-widget';
 
 @injectable()
@@ -36,34 +36,59 @@ export class TreeActionWidget extends ReactWidget {
     protected render(): React.ReactNode {
         let graphicalComparison = <></>;
         if (this.showGraphicalComparison) {
-            graphicalComparison = <>
-                <br/><br/>
-                <button onClick={() => this.parentView.showGraphicalComparison()}>Show graphical comparison</button>
-            </>;
+            graphicalComparison = (
+                <>
+                    <br />
+                    <br />
+                    <button onClick={() => this.parentView.showGraphicalComparison()}>Show graphical comparison</button>
+                </>
+            );
         }
 
-        return <div>
-            <h3>{"Actions:"}</h3>
-            <b>Merge</b><br/>
-            <button onClick={() => this.parentView.merge(false, false, false)} disabled={!this.activateMerge}>&#129106; Merge Single</button><br/>
-            <button onClick={() => this.parentView.merge(true, false, false)} disabled={!this.activateMerge}>&#10006; Discard Single</button><br/>
-            <button onClick={() => this.parentView.merge(false, true, false)}>&#129106; Merge ALL </button><br/><br/>
-            <br/>
-            <b>Resolve conflict</b><br/>
-            <button onClick={() => this.parentView.merge(true, false, true)} disabled={!this.activateConflict}>&#129104; Merge to left (keep right) </button><br/>
-            <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>&#129106;  Merge to right (keep left)</button><br/><br/>
-            <br/>
-            <b>Undo</b><br/>
-            <button onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>Undo last action</button>
-            {graphicalComparison}
-        </div>;
+        return (
+            <div>
+                <h3>{'Actions:'}</h3>
+                <b>Merge</b>
+                <br />
+                <button onClick={() => this.parentView.merge(true, false, false)} disabled={!this.activateMerge}>
+                    &#129106; Accept Change (Merge To Source)
+                </button>
+                <br />
+                <button onClick={() => this.parentView.merge(false, false, false)} disabled={!this.activateMerge}>
+                    &#10006; Discard Change (Merge to Target)
+                </button>
+                <br />
+                <button onClick={() => this.parentView.merge(true, true, false)}>&#129106; Accept All (Merge to Source) </button>
+                <br />
+                <br />
+                <br />
+                <b>Resolve conflict</b>
+                <br />
+                <button onClick={() => this.parentView.merge(true, false, true)} disabled={!this.activateConflict}>
+                    &#129104; Keep Source (Current){' '}
+                </button>
+                <br />
+                <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>
+                    &#129106; Keep Target (Incoming)
+                </button>
+                <br />
+                <br />
+                <br />
+                <b>Undo</b>
+                <br />
+                <button onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>
+                    Undo last action
+                </button>
+                {graphicalComparison}
+            </div>
+        );
     }
 
-    public updateActivation(type: string) {
-        if (type === "diff") {
+    public updateActivation(type: string): void {
+        if (type === 'diff') {
             this.activateMerge = true;
             this.activateConflict = false;
-        } else if (type === "conflict") {
+        } else if (type === 'conflict') {
             this.activateMerge = false;
             this.activateConflict = true;
         } else {
@@ -73,7 +98,7 @@ export class TreeActionWidget extends ReactWidget {
         this.update();
     }
 
-    public setGraphicalComparisonVisibility(visible: boolean) {
+    public setGraphicalComparisonVisibility(visible: boolean): void {
         this.showGraphicalComparison = visible;
         this.update();
     }

@@ -12,13 +12,12 @@
  * https://www.gnu.org/software/classpath/license.html.
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
- ********************************************************************************/ 
+ ********************************************************************************/
 import { Title } from '@phosphor/widgets';
 import { BaseWidget, Message, Saveable, SplitPanel, Widget } from '@theia/core/lib/browser';
 import { Emitter, Event, ILogger } from '@theia/core/lib/common';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { injectable, postConstruct } from 'inversify';
-
 import { TreeEditor } from './interfaces';
 import { AddCommandProperty, MasterTreeWidget } from './master-tree-widget';
 import { TreeActionWidget } from './tree-action-widget';
@@ -45,7 +44,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         protected readonly treeWidgetOverview: MasterTreeWidget,
         protected readonly treeWidgetModel1: MasterTreeWidget,
         protected readonly treeWidgetModel2: MasterTreeWidget,
-        
+
         protected readonly workspaceService: WorkspaceService,
         protected readonly logger: ILogger,
         readonly widgetId: string
@@ -56,10 +55,10 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.splitPanelOverview = new SplitPanel();
         this.splitPanelModels = new SplitPanel();
         this.actionWidget = new TreeActionWidget(this);
-        
-        this.splitPanelMain.orientation = "vertical";
-        this.splitPanelOverview.orientation = "horizontal";
-        this.splitPanelModels.orientation = "horizontal";
+
+        this.splitPanelMain.orientation = 'vertical';
+        this.splitPanelOverview.orientation = 'horizontal';
+        this.splitPanelModels.orientation = 'horizontal';
         this.addClass(BaseTreeEditorWidget.Styles.EDITOR);
         this.splitPanelMain.addClass(BaseTreeEditorWidget.Styles.SASH);
         this.splitPanelOverview.addClass(BaseTreeEditorWidget.Styles.SASH);
@@ -68,17 +67,11 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel2.addClass(BaseTreeEditorWidget.Styles.TREE);
         this.treeWidgetOverview.addClass(BaseTreeEditorWidget.Styles.TREE);
 
-        this.toDispose.push(
-            this.treeWidgetModel1.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel1, ev))
-        );
+        this.toDispose.push(this.treeWidgetModel1.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel1, ev)));
 
-        this.toDispose.push(
-            this.treeWidgetModel2.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel2, ev))
-        );
+        this.toDispose.push(this.treeWidgetModel2.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetModel2, ev)));
 
-        this.toDispose.push(
-            this.treeWidgetOverview.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetOverview, ev))
-        );
+        this.toDispose.push(this.treeWidgetOverview.onSelectionChange(ev => this.treeSelectionChanged(treeWidgetOverview, ev)));
 
         this.toDispose.push(this.onDirtyChangedEmitter);
     }
@@ -133,11 +126,7 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
      * @param type The type of the node's data
      * @param property The property containing the node's data
      */
-    protected abstract addNode({
-        node,
-        type,
-        property
-    }: AddCommandProperty): void;
+    protected abstract addNode({ node, type, property }: AddCommandProperty): void;
 
     protected onAfterAttach(msg: Message): void {
         this.splitPanelMain.addWidget(this.splitPanelOverview);
@@ -176,16 +165,13 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
      * @param data The new data for the node
      * @param node The tree node whose data will be updated
      */
-    protected abstract handleFormUpdate(
-        data: any,
-        node: TreeEditor.Node
-    ): void;
+    protected abstract handleFormUpdate(data: any, node: TreeEditor.Node): void;
 
     public save(): void {
         // do nothing by default
     }
 
-    public abstract merge(toLeft: boolean, all: boolean, conflict: boolean): void;
+    public abstract merge(toSource: boolean, all: boolean, conflict: boolean): void;
     public abstract undoMerge(): void;
     public abstract showGraphicalComparison(): void;
 

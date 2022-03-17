@@ -1,16 +1,20 @@
 {
   "private": true,
   "scripts": {
+    "all": "lerna run all",
+    "lint": "lerna run lint",
     "prepare": "lerna run prepare",
+    "build": "lerna run build",
+    "start:coffee": "yarn --cwd examples/coffee-example/browser-app start",
     "rebuild:browser": "theia rebuild:browser",
     "rebuild:electron": "theia rebuild:electron"
   },
   "devDependencies": {
-    "lerna": "2.4.0"
+    "lerna": "^4.0.0"
   },
   "workspaces": [
     "comparison-extension",
-    "browser-app",
-    "electron-app"
+    "examples/coffee-example/coffee-comparison-extension",
+    "examples/coffee-example/browser-app"
   ]
 }
