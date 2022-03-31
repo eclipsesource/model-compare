@@ -5,6 +5,7 @@
     "lint": "lerna run lint",
     "prepare": "lerna run prepare",
     "build": "lerna run build",
+    "publish:next": "lerna run publish:next",
     "start:coffee": "yarn --cwd examples/coffee-example/browser-app start",
     "rebuild:browser": "theia rebuild:browser",
     "rebuild:electron": "theia rebuild:electron"

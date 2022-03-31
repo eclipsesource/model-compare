@@ -1,12 +1,16 @@
 {
-  "name": "comparison-extension",
+  "name": "@eclipsesource/comparison-extension",
   "keywords": [
     "theia-extension"
   ],
+  "repository": "https://github.com/eclipsesource/model-compare",
+  "bugs": "https://github.com/eclipsesource/model-compare/issues",
   "version": "0.0.1",
+  "license": "EPL-2.0",
   "files": [
     "lib",
     "src",
+    "server",
     "style"
   ],
   "dependencies": {
@@ -15,8 +19,9 @@
     "@jsonforms/react": "2.4.0",
     "@jsonforms/vanilla-renderers": "2.4.0",
     "@theia/core": "1.20.0",
-    "@theia/workspace": "1.20.0",
     "@theia/process": "1.20.0",
+    "@theia/workspace": "1.20.0",
+    "@theia/git": "1.20.0",
     "react": "^16.9.13",
     "react-dom": "^16.9.13",
     "react-redux": "^7.1.5",
@@ -39,12 +44,13 @@
     "typescript": "^3.9.2"
   },
   "scripts": {
-    "all": "yarn run prepare && yarn run lint && yarn run build",
-    "prepare": "yarn run clean",
+    "all": "yarn run clean && yarn run lint && yarn run build",
+    "prepare": "yarn all",
     "clean": "rimraf lib",
     "build": "tsc",
     "watch": "tsc -w",
-    "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src"
+    "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
+    "publish:next": "VERSION_NUMBER=$npm_package_version-next.$(date +%Y%m%d.%H%M%S) && yarn publish --access public --tag next --new-version $VERSION_NUMBER --no-git-tag-version"
   },
   "theiaExtensions": [
     {

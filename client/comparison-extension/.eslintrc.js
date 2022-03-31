@@ -4,5 +4,9 @@ module.exports = {
     parserOptions: {
         tsconfigRootDir: __dirname,
         project: 'tsconfig.json'
+    },
+    rules: {
+        'no-undef': 'off',
+        'brace-style': 'off'
     }
 };

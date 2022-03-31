@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 .yellow {
-    color: blue;
+    color: var(--theia-gitDecoration-modifiedResourceForeground) !important;
 }
 
 .blue {
@@ -22,11 +22,11 @@
 }
 
 .red {
-    color: #ff6347;
+    color: var(--theia-gitDecoration-deletedResourceForeground) !important;
 }
 
 .green {
-    color: green;
+    color: var(--theia-gitDecoration-untrackedResourceForeground) !important;
 }
 
 .black {
