@@ -50,7 +50,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "eslint -c ./.eslintrc.js --ext .ts,.tsx ./src",
-    "publish:next": "VERSION_NUMBER=$npm_package_version-next.$(date +%Y%m%d.%H%M%S) && yarn publish --access public --tag next --new-version $VERSION_NUMBER --no-git-tag-version"
+    "publish:next": "VERSION_NUMBER=$npm_package_version-next.$(date +%Y%m%d-%H%M%S) && yarn publish --access public --tag next --new-version $VERSION_NUMBER --no-git-tag-version"
   },
   "theiaExtensions": [
     {
