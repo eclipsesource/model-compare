@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ComparisonExtensionConfiguration } from 'comparison-extension/lib/browser/comparison-extension-configuration';
+import { ComparisonExtensionConfiguration } from '@eclipsesource/comparison-extension/lib/browser/comparison-extension-configuration';
 import { ContainerModule, interfaces } from 'inversify';
 import { CoffeeComparisonExtensionConfiguration } from '../common/coffee-comparison-extension-configuration';
 

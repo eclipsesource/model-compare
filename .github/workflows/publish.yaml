@@ -1,0 +1,27 @@
+name: Build & publish extension
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+          always-auth: true
+
+      - name: Build & publish extension
+        working-directory: "./client"
+        run: |
+          yarn install
+          yarn run publish:next
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_REGISTRY_TOKEN }}

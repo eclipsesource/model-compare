@@ -102,16 +102,16 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             let color;
             switch (data.color) {
                 case 'added':
-                    color = 'green';
+                    color = 'var(--theia-gitDecoration-untrackedResourceForeground)';
                     break;
                 case 'moved':
-                    color = 'blue';
+                    color = 'var(--theia-gitDecoration-modifiedResourceForeground)';
                     break;
                 case 'changed':
-                    color = 'blue';
+                    color = 'var(--theia-gitDecoration-modifiedResourceForeground)';
                     break;
                 case 'deleted':
-                    color = 'red';
+                    color = 'var(--theia-gitDecoration-deletedResourceForeground)';
                     break;
                 default:
                     color = 'gray';
