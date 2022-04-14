@@ -47,6 +47,7 @@ button[type='button'] {
     width: 16px;
     margin-right: 5px;
     text-align: center;
+    display: flex;
 }
 
 .theia-tree-editor-tree .node-buttons {

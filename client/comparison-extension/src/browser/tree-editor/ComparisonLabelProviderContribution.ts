@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { LabelProviderContribution } from '@theia/core/lib/browser';
+import { codicon, LabelProviderContribution } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { injectable } from 'inversify';
 import { TreeEditor } from '../tree-widget/interfaces';
@@ -43,7 +43,8 @@ export class ComparisonTreeLabelProvider implements LabelProviderContribution {
     getIcon(element: object): string | undefined {
         const data = TreeEditor.Node.is(element) ? element.jsonforms.data : element;
         if (data.icon && data.icon.trim() !== '') {
-            return data.icon;
+            const split = data.icon.split(' ');
+            return `${codicon(split[0])} ${split[1]}`;
         }
         return undefined;
     }
