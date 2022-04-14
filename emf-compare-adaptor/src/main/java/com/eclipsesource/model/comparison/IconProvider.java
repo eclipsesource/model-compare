@@ -17,42 +17,42 @@ package com.eclipsesource.model.comparison;
 
 public class IconProvider {
 	public static String getAddIcon() {
-		return "fas fa-plus-circle green";
+		return "diff-added green";
 	}
 
 	public static String getDeleteIcon() {
-		return "fas fa-minus-circle red";
+		return "diff-removed red";
 	}
 
 	public static String getChangeIcon() {
-		return "fas fa-pen yellow";
+		return "edit yellow";
 	}
 
 	public static String getMoveIcon() {
-		return "fas fa-exchange-alt yellow";
+		return "diff-modified yellow";
 	}
 
 	public static String getConflictIcon() {
-		return "fas fa-exclamation red";
+		return "report yellow";
 	}
 
 	public static String getMatchIcon() {
-		return "fas fa-stream gray";
+		return "list-flat gray";
 	}
 
 	public static String getObjectIcon() {
-		return "fas fa-circle gray";
+		return "circle-large-outline gray";
 	}
 
 	public static String getAttributeIcon() {
-		return "fas fa-tag gray";
+		return "tag gray";
 	}
 
 	public static String getReferenceIcon() {
-		return "fas fa-arrows-alt-h gray";
+		return "arrow-both gray";
 	}
 
 	public static String getReferenceChildIcon() {
-		return "fas fa-long-arrow-alt-right gray";
+		return "arrow-right gray";
 	}
 }
