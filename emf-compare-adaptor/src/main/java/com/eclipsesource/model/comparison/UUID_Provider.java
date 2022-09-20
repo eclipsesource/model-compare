@@ -27,7 +27,7 @@ public class UUID_Provider {
 	public static String getUUID(EObject obj) {
 		try {
 			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
-					normalize(EcoreUtil.getURI(obj).toString().split("#_")[1])).toString();
+					normalize(EcoreUtil.getURI(obj).toString().split("#")[1])).toString();
 		} catch (Exception e) {
 			return backupUUID;
 		}
@@ -36,7 +36,7 @@ public class UUID_Provider {
 	public static String getUUID(EObject owner, EAttribute attribute) {
 		try {
 			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
-					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+					normalize(EcoreUtil.getURI(owner).toString().split("#")[1])
 							+ normalize(EcoreUtil.getURI(attribute).toString()))
 					.toString();
 		} catch (Exception e) {
@@ -47,7 +47,7 @@ public class UUID_Provider {
 	public static String getUUID(EObject owner, EReference reference) {
 		try {
 			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
-					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+					normalize(EcoreUtil.getURI(owner).toString().split("#")[1])
 							+ normalize(EcoreUtil.getURI(reference).toString()))
 					.toString();
 		} catch (Exception e) {
@@ -58,7 +58,7 @@ public class UUID_Provider {
 	public static String getUUID(EObject owner, EReference reference, EObject ref) {
 		try {
 			return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_URL,
-					normalize(EcoreUtil.getURI(owner).toString().split("#_")[1])
+					normalize(EcoreUtil.getURI(owner).toString().split("#")[1])
 							+ normalize(EcoreUtil.getURI(reference).toString())
 							+ normalize(EcoreUtil.getURI(ref).toString()))
 					.toString();
@@ -69,7 +69,7 @@ public class UUID_Provider {
 
 	public static String getGraphicalUUID(EObject obj) {
 		try {
-			return EcoreUtil.getURI(obj).toString().split("#_")[1];
+			return EcoreUtil.getURI(obj).toString().split("#")[1];
 		} catch (Exception e) {
 			return backupUUID;
 		}
