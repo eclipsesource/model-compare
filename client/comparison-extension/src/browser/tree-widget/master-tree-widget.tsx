@@ -137,7 +137,10 @@ export class MasterTreeWidget extends TreeWidgetWithTitle {
             return;
         }
         const rootNode = this.model.root as TreeEditor.Node;
-        const toSelect = paths.reduceRight((node, path) => node.children.find(value => value.name === path), rootNode) as TreeEditor.Node;
+        const toSelect = paths.reduceRight(
+            (node, path) => node.children.find(value => this.labelProvider.getName(value) === path),
+            rootNode
+        ) as TreeEditor.Node;
         this.model.selectNode(toSelect);
         this.model.refresh();
     }

@@ -92,6 +92,10 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
             this.myTreeWidgetModel1.treeTitle = 'Source: ' + this.options.source.replace(/^.*[\\\/]/, '');
             this.myTreeWidgetModel2.treeTitle = 'Target: ' + this.options.target.replace(/^.*[\\\/]/, '');
 
+            console.log(JSON.stringify(response.changesTree));
+            console.log(JSON.stringify(response.sourceTree));
+            console.log(JSON.stringify(response.targetTree));
+
             this.myTreeWidgetOverview.treeTitle = 'Differences overview:';
             this.myTreeWidgetOverview.setData({ error: false, data: response.changesTree }).then(() => {
                 this.myTreeWidgetOverview.selectFirst();

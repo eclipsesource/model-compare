@@ -137,6 +137,6 @@ export class GraphicalComparisonContribution
     }
 
     protected newMultiUriAwareCommandHandler(handler: UriCommandHandler<URI[]>): UriAwareCommandHandler<URI[]> {
-        return new UriAwareCommandHandler(this.selectionService, handler, { multi: true });
+        return UriAwareCommandHandler.MultiSelect(this.selectionService, handler);
     }
 }

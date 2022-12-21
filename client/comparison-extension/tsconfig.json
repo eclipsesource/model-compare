@@ -16,7 +16,7 @@
     "moduleResolution": "node",
     "target": "ES2017",
     "jsx": "react",
-    "lib": ["ES2017", "dom"],
+    "lib": ["ES2017", "ES2020.Promise", "dom"],
     "sourceMap": true,
     "rootDir": "src",
     "outDir": "lib"
