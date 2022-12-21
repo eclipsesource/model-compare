@@ -77,10 +77,10 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         this.activate();
 
         this.options.left.getSvgElement().then(_ => {
-            this.options.left.actionDispatcher.dispatch(new FitToScreenAction([]));
+            this.options.left.actionDispatcher.dispatch(FitToScreenAction.create([]));
         });
         this.options.right.getSvgElement().then(_ => {
-            this.options.right.actionDispatcher.dispatch(new FitToScreenAction([]));
+            this.options.right.actionDispatcher.dispatch(FitToScreenAction.create([]));
         });
         this.options.left.node.addEventListener('focusin', event => {
             this.lastFocusLeft = true;
