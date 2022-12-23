@@ -15,27 +15,18 @@
  ********************************************************************************/
 /* eslint-disable no-useless-escape */
 import { ILogger } from '@theia/core';
-import {
-    ApplicationShell,
-    CompositeTreeNode,
-    OpenViewArguments,
-    Saveable,
-    StatefulWidget,
-    Title,
-    TreeNode,
-    Widget,
-    WidgetManager
-} from '@theia/core/lib/browser';
+import { CompositeTreeNode, StatefulWidget, Title, TreeNode, Widget } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { inject, injectable } from 'inversify';
 import { ComparisonBackendService } from '../../common/protocol';
 import { JSONCompareResponse } from '../../node/json-compare-response';
 import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
+import { GraphicalComparisonOpenHandler } from '../graphical/graphical-comparison-open-handler';
 import { GraphicalComparisonOpener } from '../graphical/graphical-comparison-opener';
-import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from '../graphical/graphical-comparison-widget';
+import { GraphicalComparisonWidgetOptions } from '../graphical/graphical-comparison-widget';
 import { TreeEditor } from '../tree-widget/interfaces';
-import { AddCommandProperty, MasterTreeWidget } from '../tree-widget/master-tree-widget';
+import { MasterTreeWidget } from '../tree-widget/master-tree-widget';
 import { BaseTreeEditorWidget } from '../tree-widget/tree-editor-widget';
 
 export const ComparisonTreeEditorWidgetOptions = Symbol('ComparisonTreeEditorWidgetOptions');
@@ -52,9 +43,9 @@ export interface MergeInstruction {
     target: string;
     direction: string;
 }
-
+// FIXME get rid of BaseTreeEditorWidget as it is only extended by this class
 @injectable()
-export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements Saveable, StatefulWidget {
+export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements StatefulWidget {
     protected options: ComparisonTreeEditorWidgetOptions;
     protected comparisonResponse: JSONCompareResponse;
 
@@ -62,8 +53,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
         @inject(ComparisonBackendService) readonly comparisonBackendService: ComparisonBackendService,
         @inject(ComparisonExtensionConfiguration) readonly config: ComparisonExtensionConfiguration,
         @inject(GraphicalComparisonOpener) protected readonly graphicalOpener: GraphicalComparisonOpener,
-        @inject(WidgetManager) protected readonly widgetManager: WidgetManager,
-        @inject(ApplicationShell) protected readonly shell: ApplicationShell,
+        @inject(GraphicalComparisonOpenHandler) protected readonly graphicalComparisonOpenHandler: GraphicalComparisonOpenHandler,
         @inject(MasterTreeWidget)
         readonly myTreeWidgetOverview: MasterTreeWidget,
         @inject(MasterTreeWidget)
@@ -114,9 +104,9 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
         if (treeWidget === this.treeWidgetOverview) {
             if (selectedNodes.length !== 0) {
                 this.selectedNode = selectedNodes[0];
-                this.navigateToSelection(this.treeWidgetModel1, this.selectedNode.jsonforms.data.uuid);
-                this.navigateToSelection(this.treeWidgetModel2, this.selectedNode.jsonforms.data.uuid);
-                this.actionWidget.updateActivation(this.selectedNode.jsonforms.data.type);
+                this.navigateToSelection(this.treeWidgetModel1, this.selectedNode.id);
+                this.navigateToSelection(this.treeWidgetModel2, this.selectedNode.id);
+                this.actionWidget.updateActivation(this.selectedNode.type);
             }
         }
         this.update();
@@ -133,7 +123,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
             while (nodes.length !== 0) {
                 const node: TreeNode = nodes.pop();
                 if (TreeEditor.Node.is(node)) {
-                    if (node.jsonforms.data.uuid === uuid) {
+                    if (node.id === uuid) {
                         let parent: CompositeTreeNode = node.parent;
                         while (parent && parent !== rootNode) {
                             if (TreeEditor.Node.is(parent)) {
@@ -156,16 +146,6 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
                 this.navigateToSelection(treeWidget, relatedUuid);
             }
         });
-    }
-
-    protected deleteNode(node: TreeEditor.Node): void {
-        throw new Error('Method not implemented.');
-    }
-    protected addNode({ node, type, property }: AddCommandProperty): void {
-        throw new Error('Method not implemented.');
-    }
-    protected handleFormUpdate(data: any, node: TreeEditor.Node): void {
-        throw new Error('Method not implemented.');
     }
 
     public save(): void {
@@ -234,7 +214,7 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
             target = 'all';
         } else {
             if (this.selectedNode) {
-                target = this.selectedNode.jsonforms.data.uuid;
+                target = this.selectedNode.id;
             }
         }
 
@@ -266,46 +246,9 @@ export class ComparisonTreeEditorWidget extends BaseTreeEditorWidget implements 
                 left: sourceWidget,
                 right: targetWidget
             };
-            this.widgetManager.getOrCreateWidget(GraphicalComparisonWidget.WIDGET_ID).then(widget => {
-                (widget as GraphicalComparisonWidget).setContent(options);
-                this.openView(widget, { activate: true });
-            });
+            const widget = await this.graphicalComparisonOpenHandler.open(new URI(this.options.base));
+            widget.setContent(options);
         });
-    }
-
-    async openView(widget: Widget, args: Partial<OpenViewArguments> = {}): Promise<Widget> {
-        // TODO: We might be able to reuse some function so we do not need to implement it here
-        const shell = this.shell;
-        const tabBar = shell.getTabBarFor(widget);
-        const area = shell.getAreaFor(widget);
-        if (!tabBar) {
-            const widgetArgs: OpenViewArguments = {
-                reveal: true,
-                ...args
-            };
-            await shell.addWidget(widget, widgetArgs);
-        } else if (args.toggle && area && shell.isExpanded(area) && tabBar.currentTitle === widget.title) {
-            switch (area) {
-                case 'left':
-                case 'right':
-                    await shell.collapsePanel(area);
-                    break;
-                case 'bottom':
-                    if (shell.bottomAreaTabBars.length === 1) {
-                        await shell.collapsePanel('bottom');
-                    }
-                    break;
-                default:
-                    await this.shell.closeWidget(GraphicalComparisonWidget.WIDGET_ID);
-            }
-            return widget;
-        }
-        if (widget.isAttached && args.activate) {
-            await shell.activateWidget(GraphicalComparisonWidget.WIDGET_ID);
-        } else if (widget.isAttached && args.reveal) {
-            await shell.revealWidget(GraphicalComparisonWidget.WIDGET_ID);
-        }
-        return widget;
     }
 }
 

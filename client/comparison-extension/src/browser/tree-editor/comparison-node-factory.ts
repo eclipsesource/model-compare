@@ -14,11 +14,11 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
 import { ILogger } from '@theia/core';
+import { CompositeTreeNode } from '@theia/core/lib/browser/tree';
 import { inject, injectable } from 'inversify';
 import { v4 } from 'uuid';
 import { TreeEditor } from '../tree-widget/interfaces';
 import { ComparisonModel } from './comparison-model';
-import { TreeData } from './comparison-model-service';
 import { ComparisonTreeLabelProvider } from './ComparisonLabelProviderContribution';
 import { ComparisonTreeEditorWidget } from './ComparisonTreeEditorWidget';
 
@@ -33,7 +33,7 @@ export interface NodeFactory {
      * @param treeData The tree's data
      * @returns The tree's shown root nodes (not to confuse with the invisible RootNode)
      */
-    mapDataToNodes(treeData: TreeData): Node[];
+    mapDataToNodes(treeData: TreeEditor.TreeData): Node[];
 
     /**
      * Creates the corresponding TreeNode for the given data.
@@ -76,25 +76,18 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
     ) {}
 
     mapDataToNodes(treeData: TreeEditor.TreeData): TreeEditor.Node[] {
-        const nodes: TreeEditor.Node[] = [];
-        (treeData.data as any[]).forEach(data => {
-            const node = this.mapData(data);
-            if (node) {
-                nodes.push(node);
-            }
-        });
-        return nodes;
+        const nodes = treeData.data.map(d => this.mapData(d));
+        return nodes ?? [];
     }
 
     mapData(
-        data: any,
+        data: Record<string, unknown>,
         parent?: TreeEditor.Node | undefined,
         property?: string | undefined,
         indexOrKey?: string | number | undefined
     ): TreeEditor.Node {
         if (!data) {
             this.logger.warn('mapData called without data');
-            return undefined;
         }
 
         const decorationData = { fontData: {} };
@@ -125,22 +118,18 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             name: this.labelProvider.getName(data),
             parent: parent,
             decorationData: decorationData,
-            jsonforms: {
-                type: this.getType(data.eClass, data),
-                data: data,
-                property: property,
-                index: typeof indexOrKey === 'number' ? indexOrKey.toFixed(0) : indexOrKey
-            }
+            type: this.getType(data.eClass as string, data),
+            data: data
         };
 
         // containments
         if (parent) {
-            parent.children.push(node);
+            CompositeTreeNode.addChild(parent, node);
             parent.expanded = true;
         }
         if (data.children) {
             // component types
-            data.children.forEach((element, idx) => {
+            (data.children as any[]).forEach((element, idx) => {
                 this.mapData(element, node, 'children', idx);
             });
         }
@@ -152,7 +141,6 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
         TreeEditor.Node,
         | 'children'
         | 'name'
-        | 'jsonforms'
         | 'id'
         | 'icon'
         | 'description'
@@ -172,8 +160,7 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             parent: undefined,
             children: [],
             decorationData: {},
-            name: undefined,
-            jsonforms: undefined
+            name: undefined
         };
     }
 
@@ -191,9 +178,5 @@ export class ComparisonTreeNodeFactory implements TreeEditor.NodeFactory {
             return ComparisonModel.Type.DiagramNode;
         }
         return undefined;
-    }
-
-    hasCreatableChildren(node: TreeEditor.Node): boolean {
-        return node ? ComparisonModel.childrenMapping.get(node.jsonforms.type) !== undefined : false;
     }
 }
