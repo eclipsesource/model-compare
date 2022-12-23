@@ -23,9 +23,9 @@ export class TreeWidgetWithTitle extends TreeWidget {
 
     protected render(): React.ReactNode {
         return (
-            <div>
+            <div {...this.createContainerAttributes()}>
                 <h3>{this.treeTitle}</h3>
-                {super.render()}
+                {this.renderTree(this.model)}
             </div>
         );
     }
