@@ -19,7 +19,7 @@ import { Emitter, Event, ILogger } from '@theia/core/lib/common';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { injectable, postConstruct } from 'inversify';
 import { TreeEditor } from './interfaces';
-import { AddCommandProperty, MasterTreeWidget } from './master-tree-widget';
+import { MasterTreeWidget } from './master-tree-widget';
 import { TreeActionWidget } from './tree-action-widget';
 
 @injectable()
@@ -113,21 +113,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         }
     }
 
-    /**
-     * Delete the given node including its associated data from the tree.
-     *
-     * @param node The tree node to delete
-     */
-    protected abstract deleteNode(node: Readonly<TreeEditor.Node>): void;
-
-    /**
-     * Add a node to the tree.
-     * @param node The tree node to add
-     * @param type The type of the node's data
-     * @param property The property containing the node's data
-     */
-    protected abstract addNode({ node, type, property }: AddCommandProperty): void;
-
     protected onAfterAttach(msg: Message): void {
         this.splitPanelMain.addWidget(this.splitPanelOverview);
         this.splitPanelMain.addWidget(this.splitPanelModels);
@@ -147,7 +132,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
         this.treeWidgetModel2.activate();
         this.treeWidgetOverview.activate();
         this.actionWidget.activate();
-        this.actionWidget.update();
         super.onAfterAttach(msg);
     }
 
@@ -156,16 +140,6 @@ export abstract class BaseTreeEditorWidget extends BaseWidget implements Saveabl
             this.splitPanelMain.node.focus();
         }
     }
-
-    /**
-     * Called when the data in the detail was changed.
-     * Whether you need to manually apply the change to the tree node's referenced data
-     * depends on your implementation of method 'getDataForNode' of your ModelService.
-     *
-     * @param data The new data for the node
-     * @param node The tree node whose data will be updated
-     */
-    protected abstract handleFormUpdate(data: any, node: TreeEditor.Node): void;
 
     public save(): void {
         // do nothing by default

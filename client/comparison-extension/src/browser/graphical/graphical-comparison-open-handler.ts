@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2022 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -13,28 +13,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { ReactWidget } from '@theia/core/lib/browser';
-import { injectable, postConstruct } from 'inversify';
-import * as React from 'react';
+import { MaybePromise } from '@theia/core';
+import { WidgetOpenerOptions, WidgetOpenHandler } from '@theia/core/lib/browser';
+import URI from '@theia/core/lib/common/uri';
+import { GraphicalComparisonWidget, GraphicalComparisonWidgetOptions } from './graphical-comparison-widget';
 
-@injectable()
-export class TextWidget extends ReactWidget {
-    protected text: string;
-
-    constructor(text: string) {
-        super();
-        this.id = 'text-test-widget';
-        this.addClass('small-widget-view');
-        this.title.closable = true;
-        this.text = text;
+export class GraphicalComparisonOpenHandler extends WidgetOpenHandler<GraphicalComparisonWidget> {
+    id: string;
+    canHandle(uri: URI, options?: WidgetOpenerOptions): MaybePromise<number> {
+        throw new Error('Method not implemented.');
     }
-
-    protected render(): React.ReactNode {
-        return <h3>{this.text}</h3>;
-    }
-
-    @postConstruct()
-    protected init(): void {
-        this.update();
+    protected createWidgetOptions(uri: URI, options?: WidgetOpenerOptions): GraphicalComparisonWidgetOptions {
+        throw new Error('Method not implemented.');
     }
 }

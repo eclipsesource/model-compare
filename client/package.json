@@ -57,9 +57,6 @@
     "**/@eclipse-glsp/client": "1.1.0-next.7ff1b00.184",
     "**/@eclipse-glsp/protocol": "1.1.0-next.7ff1b00.184",
     "**/@eclipse-glsp/theia-integration": "1.0.0-theia1.27.0",
-    "**/@eclipse-emfcloud/modelserver-client": "0.8.0-theia-cr01",
-    "**/@eclipse-emfcloud/modelserver-theia": "0.8.0-theia-cr01",
-    "**/@eclipse-emfcloud/theia-tree-editor": "0.7.0-next.4b9e870",
     "**/sprotty": "0.12.0",
     "**/sprotty-protocol": "0.12.0",
     "**/sprotty-theia": "0.12.0"

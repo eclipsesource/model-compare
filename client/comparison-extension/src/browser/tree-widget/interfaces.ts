@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  ********************************************************************************/
-import { JsonSchema, UISchemaElement } from '@jsonforms/core';
 import { CompositeTreeNode, DecoratedTreeNode, ExpandableTreeNode, SelectableTreeNode, TreeNode } from '@theia/core/lib/browser/tree';
 
 export namespace TreeEditor {
@@ -27,28 +26,23 @@ export namespace TreeEditor {
 
     export interface Node extends CompositeTreeNode, ExpandableTreeNode, SelectableTreeNode, DecoratedTreeNode {
         editorId: string;
-        children: TreeNode[];
-        name: string;
-        jsonforms: {
-            type: string;
-            property: string;
-            index?: string;
-            data: any;
-        };
+        // TODO type
+        type: string;
+        // TODO needed?
+        data?: Record<string, unknown>;
     }
 
     export interface TreeData {
         error: boolean;
-        data?: any;
+        data: any[];
     }
-
     export namespace Node {
         export function is(node: object | undefined): node is Node {
-            return TreeNode.is(node) && 'jsonforms' in node && !!node['jsonforms'];
+            return TreeNode.is(node) && 'type' in node && !!node['type'];
         }
 
         export function hasType(node: TreeNode | undefined, type: string): node is Node {
-            return is(node) && node.jsonforms.type === type;
+            return is(node) && node.type === type;
         }
     }
 
@@ -58,48 +52,6 @@ export namespace TreeEditor {
     export interface ChildrenDescriptor {
         property: string;
         children: string[];
-    }
-
-    export const ModelService = Symbol('JsonFormsModelService');
-    export interface ModelService {
-        /**
-         * Returns the data associated with the given node.
-         * This is the data which is usually rendered by the editor's detail view when its node is selected.
-         *
-         * @param node The tree node
-         * @returns The data associated with the node
-         */
-        getDataForNode(node: Node): any;
-
-        /**
-         * Returns the JsonSchema describing how the node's data should be rendered.
-         * Alternatively, return undefined to generate a schema in the detail view.
-         * @param node The tree node
-         * @returns the JsonSchema describing the node's data or undefined to generate a schema.
-         */
-        getSchemaForNode(node: Node): JsonSchema | undefined;
-
-        /**
-         * Returns the ui schema describing how the node's data should be rendered.
-         * Might return undefined to automatically generate a ui schema in the detail view based on the node's json schema.
-         *
-         * @param node The tree node
-         * @returns The ui schema for the node's data or undefined to generate a ui schema.
-         */
-        getUiSchemaForNode(node: Node): UISchemaElement | undefined;
-
-        /**
-         * This mapping describes which child nodes can be created for a given type.
-         * Thereby, the map's keys are the types and the values the children descriptors.
-         * There is one children descriptor for every property that can contain children.
-         */
-        getChildrenMapping(): Map<string, ChildrenDescriptor[]>;
-
-        /**
-         * Returns the name of the given type. This could also be the type itself if it is already properly readable by a user.
-         * @param type The type to calculate the name for
-         */
-        getNameForType(type: string): string;
     }
 
     /**
@@ -125,12 +77,6 @@ export namespace TreeEditor {
          *                   If the data is inserted into an object, this is the key the data is associated with.
          */
         mapData(data: any, parent?: Node, property?: string, indexOrKey?: number | string): Node;
-
-        /**
-         * @param node The node to create a child for
-         * @returns true if child nodes can be created
-         */
-        hasCreatableChildren(node: Node): boolean;
     }
 
     /**

@@ -19,9 +19,9 @@ import { ContainerModule, injectable } from 'inversify';
 import '../../style/elements.css';
 import '../../style/index.css';
 import { BackendClient, ComparisonBackendService, COMPARISON_BACKEND_PATH } from '../common/protocol';
+import { GraphicalComparisonOpenHandler } from './graphical/graphical-comparison-open-handler';
 import { GraphicalComparisonOpener } from './graphical/graphical-comparison-opener';
 import { TreeComparisonContribution } from './tree-comparison-contribution';
-import { ComparisonModelService } from './tree-editor/comparison-model-service';
 import { ComparisonTreeNodeFactory } from './tree-editor/comparison-node-factory';
 import { ComparisonTreeLabelProvider } from './tree-editor/ComparisonLabelProviderContribution';
 import { ComparisonTreeEditorWidget, ComparisonTreeEditorWidgetOptions } from './tree-editor/ComparisonTreeEditorWidget';
@@ -37,19 +37,14 @@ export default new ContainerModule(bind => {
     bind(LabelProviderContribution).to(ComparisonTreeLabelProvider);
 
     // bind to themselves because we use it outside of the editor widget too
-    bind(ComparisonModelService).toSelf().inSingletonScope();
     bind(ComparisonTreeLabelProvider).toSelf().inSingletonScope();
+    bind(GraphicalComparisonOpenHandler).toSelf().inSingletonScope();
 
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
         id: ComparisonTreeEditorWidget.WIDGET_ID,
         createWidget: (options: ComparisonTreeEditorWidgetOptions) => {
             // This creates a new inversify container with all the basic services needed for a theia tree editor
-            const treeContainer = createBasicTreeContainter(
-                context.container,
-                ComparisonTreeEditorWidget,
-                ComparisonModelService,
-                ComparisonTreeNodeFactory
-            );
+            const treeContainer = createBasicTreeContainter(context.container, ComparisonTreeEditorWidget, ComparisonTreeNodeFactory);
 
             // create a new container
             return treeContainer.get(ComparisonTreeEditorWidget);
