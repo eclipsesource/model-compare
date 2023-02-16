@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -38,14 +38,19 @@
 }
 
 .comparisonDialog {
-    flex: 1 100%;
     padding-bottom: calc(var(--theia-ui-padding) * 3);
 }
 
-.comparisonDialogInput {
-    padding: 0 10px;
-    width: 100%;
-    box-sizing: border-box;
+.comparisonDialog .dialog-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.comparisonDialog .dialog-section .theia-button {
+    margin-left: 0;
+    margin-top: 1.33em;
+    display: flex;
+    justify-content: center;
 }
 
 .widget-view {
@@ -54,4 +59,19 @@
 
 .grayBackground .p-SplitPanel-handle {
     background: gray;
+}
+
+.theia-button > i {
+    margin-right: 5px;
+}
+
+.tree-actions .action-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.tree-actions .theia-button {
+    display: flex;
+    width: fit-content;
+    margin-top: 1px;
 }

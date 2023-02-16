@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -18,9 +18,8 @@ import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { injectable } from 'inversify';
 import * as React from 'react';
 
-export const DIALOG_TITLE = 'Choose Source, Target, Base';
-export const DIALOG_CLASS = 'comparisonDialog';
-export const DIALOG_LABEL_CLASS = 'comparisonDialogInput';
+export const DIALOG_TITLE = 'Choose Source and Target';
+export const DIALOG_TITLE_BASE = 'Choose Source, Target and Base';
 
 @injectable()
 export class ComparisonOrderDialog extends ReactDialog<void> {
@@ -30,7 +29,7 @@ export class ComparisonOrderDialog extends ReactDialog<void> {
     protected showBase = true;
 
     constructor(source: string, target: string, base = '') {
-        super({ title: DIALOG_TITLE });
+        super({ title: base === 'undefined' || base.trim() === '' ? DIALOG_TITLE : DIALOG_TITLE_BASE });
 
         this.source = source;
         this.target = target;
@@ -62,35 +61,42 @@ export class ComparisonOrderDialog extends ReactDialog<void> {
         if (this.showBase) {
             baseTags = (
                 <>
-                    <button onClick={() => this.swapBottom()}>Swap</button>
-                    <br />
-                    <br />
-                    <b>base (common ancenstor):</b>
-                    <br />
-                    <input type='text' value={this.base} className={DIALOG_LABEL_CLASS} readOnly={true} dir='rtl' />
+                    <div className='dialog-section'>
+                        <button className='theia-button' onClick={() => this.swapBottom()}>
+                            <i className='codicon codicon-arrow-swap' /> Swap
+                        </button>
+                    </div>
+                    <div className='dialog-section'>
+                        <h4>base (common ancestor):</h4>
+                        <input type='text' value={this.base} className={'theia-input'} readOnly={true} dir='rtl' />
+                    </div>
                 </>
             );
         }
 
         return (
-            <div className={DIALOG_CLASS}>
-                <h3>Select which file is source, target and base</h3>
-                <b>source (old version):</b>
-                <br />
-                <input type='text' value={this.source} className={DIALOG_LABEL_CLASS} readOnly={true} dir='rtl' />
-                <br />
-                <br />
-                <button onClick={() => this.swapTop()}>Swap</button>
-                <br />
-                <br />
-                <b>target (new version):</b>
-                <br />
-                <input type='text' value={this.target} className={DIALOG_LABEL_CLASS} readOnly={true} dir='rtl' />
-                <br />
-                <br />
+            <div className='comparisonDialog'>
+                <h3>{this.dialogHeader}</h3>
+                <div className='dialog-section'>
+                    <h4>source (old version):</h4>
+                    <input type='text' value={this.source} className={'theia-input'} readOnly={true} dir='rtl' />
+                </div>
+                <div className='dialog-section'>
+                    <button className='theia-button' onClick={() => this.swapTop()}>
+                        <i className='codicon codicon-arrow-swap' /> Swap
+                    </button>
+                </div>
+                <div className='dialog-section'>
+                    <h4>target (new version):</h4>
+                    <input type='text' value={this.target} className={'theia-input'} readOnly={true} dir='rtl' />
+                </div>
                 {baseTags}
             </div>
         );
+    }
+
+    protected get dialogHeader(): string {
+        return this.showBase ? 'Select files for source, target and base' : 'Select files for source and target';
     }
 
     public getSource(): string {
