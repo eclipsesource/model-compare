@@ -17,6 +17,14 @@
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
       "outputCapture": "std"
+    },
+    {
+      "name": "Launch Browser Frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:3000/",
+      "sourceMaps": true,
+      "webRoot": "${workspaceRoot}/examples/coffee-example/browser-app"
     }
   ]
 }

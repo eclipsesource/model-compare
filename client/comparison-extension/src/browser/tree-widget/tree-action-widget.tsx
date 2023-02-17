@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -37,48 +37,61 @@ export class TreeActionWidget extends ReactWidget {
         let graphicalComparison = <></>;
         if (this.showGraphicalComparison) {
             graphicalComparison = (
-                <>
-                    <br />
-                    <br />
-                    <button onClick={() => this.parentView.showGraphicalComparison()}>Show graphical comparison</button>
-                </>
+                <div className='action-section'>
+                    <h4>Graphical Comparison</h4>
+                    <button className='theia-button' onClick={() => this.parentView.showGraphicalComparison()}>
+                        <i className='codicon codicon-type-hierarchy-sub' /> Show graphical comparison
+                    </button>
+                </div>
             );
         }
 
         return (
-            <div>
+            <div className='tree-actions'>
                 <h3>{'Actions:'}</h3>
-                <b>Merge</b>
-                <br />
-                <button onClick={() => this.parentView.merge(true, false, false)} disabled={!this.activateMerge}>
-                    &#129106; Accept Change (Merge To Source)
-                </button>
-                <br />
-                <button onClick={() => this.parentView.merge(false, false, false)} disabled={!this.activateMerge}>
-                    &#10006; Discard Change (Merge to Target)
-                </button>
-                <br />
-                <button onClick={() => this.parentView.merge(true, true, false)}>&#129106; Accept All (Merge to Source) </button>
-                <br />
-                <br />
-                <br />
-                <b>Resolve conflict</b>
-                <br />
-                <button onClick={() => this.parentView.merge(true, false, true)} disabled={!this.activateConflict}>
-                    &#129104; Keep Source (Current){' '}
-                </button>
-                <br />
-                <button onClick={() => this.parentView.merge(false, false, true)} disabled={!this.activateConflict}>
-                    &#129106; Keep Target (Incoming)
-                </button>
-                <br />
-                <br />
-                <br />
-                <b>Undo</b>
-                <br />
-                <button onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>
-                    Undo last action
-                </button>
+                <div className='action-section'>
+                    <h4>Merge</h4>
+                    <button
+                        className='theia-button'
+                        onClick={() => this.parentView.merge(true, false, false)}
+                        disabled={!this.activateMerge}
+                    >
+                        <i className='codicon codicon-arrow-right' /> Accept Change (Merge To Source)
+                    </button>
+                    <button
+                        className='theia-button'
+                        onClick={() => this.parentView.merge(false, false, false)}
+                        disabled={!this.activateMerge}
+                    >
+                        <i className='codicon codicon-close' /> Discard Change (Merge to Target)
+                    </button>
+                    <button className='theia-button' onClick={() => this.parentView.merge(true, true, false)}>
+                        <i className='codicon codicon-arrow-right' /> Accept All (Merge to Source)
+                    </button>
+                </div>
+                <div className='action-section'>
+                    <h4>Resolve conflict</h4>
+                    <button
+                        className='theia-button'
+                        onClick={() => this.parentView.merge(true, false, true)}
+                        disabled={!this.activateConflict}
+                    >
+                        <i className='codicon codicon-arrow-left' /> Keep Source (Current)
+                    </button>
+                    <button
+                        className='theia-button'
+                        onClick={() => this.parentView.merge(false, false, true)}
+                        disabled={!this.activateConflict}
+                    >
+                        <i className='codicon codicon-arrow-right' /> Keep Target (Incoming)
+                    </button>
+                </div>
+                <div className='action-section'>
+                    <h4>Undo</h4>
+                    <button className='theia-button' onClick={() => this.parentView.undoMerge()} disabled={!this.parentView.dirty}>
+                        <i className='codicon codicon-discard' /> Undo last action
+                    </button>
+                </div>
                 {graphicalComparison}
             </div>
         );
