@@ -37,6 +37,10 @@
     color: gray;
 }
 
+.theia-TreeContainer.comparison-tree-container {
+    height: 91%;
+}
+
 .comparisonDialog {
     padding-bottom: calc(var(--theia-ui-padding) * 3);
 }
@@ -61,7 +65,8 @@
     background: gray;
 }
 
-.theia-button > i {
+.action-section .theia-button > i,
+.dialog-section .theia-button > i {
     margin-right: 5px;
 }
 

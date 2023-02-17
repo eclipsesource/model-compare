@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -28,5 +28,13 @@ export class TreeWidgetWithTitle extends TreeWidget {
                 {this.renderTree(this.model)}
             </div>
         );
+    }
+
+    protected override createContainerAttributes(): React.HTMLAttributes<HTMLElement> {
+        const attributes = super.createContainerAttributes();
+        return {
+            className: attributes.className + ' comparison-tree-container',
+            onContextMenu: attributes.onContextMenu
+        };
     }
 }

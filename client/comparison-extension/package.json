@@ -43,10 +43,10 @@
     "typescript": "~4.5.5"
   },
   "peerDependencies": {
-    "@theia/core": "^1.34.1",
-    "@theia/process": "^1.34.1",
-    "@theia/workspace": "^1.34.1",
-    "@theia/git": "^1.34.1"
+    "@theia/core": "^1.0.0",
+    "@theia/git": "^1.0.0",
+    "@theia/process": "^1.0.0",
+    "@theia/workspace": "^1.0.0"
   },
   "scripts": {
     "all": "yarn run clean && yarn run lint && yarn run build",
