@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2021 EclipseSource and others.
+ * Copyright (c) 2021-2023 EclipseSource and others.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,7 +17,6 @@ import { FitToScreenAction } from '@eclipse-glsp/client';
 import { GLSPDiagramWidget } from '@eclipse-glsp/theia-integration/lib/browser';
 import { BaseWidget, Message, SplitPanel, StatefulWidget, Title, Widget } from '@theia/core/lib/browser';
 import { inject, injectable } from 'inversify';
-import { DiagramWidget } from 'sprotty-theia';
 import { ComparisonExtensionConfiguration } from '../comparison-extension-configuration';
 
 export const GraphicalComparisonWidgetOptions = Symbol('GraphicalComparisonWidgetOptions');
@@ -124,7 +123,7 @@ export class GraphicalComparisonWidget extends BaseWidget implements StatefulWid
         title.iconClass = `${this.config.getGraphicalDiffViewIcon()} file-icon`;
     }
 
-    get diagramWidget(): DiagramWidget {
+    get diagramWidget(): GLSPDiagramWidget {
         if (this.options) {
             if (this.lastFocusLeft) {
                 return this.options.left;

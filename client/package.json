@@ -8,10 +8,12 @@
     "publish:next": "lerna run publish:next",
     "start:coffee": "yarn --cwd examples/coffee-example/browser-app start",
     "rebuild:browser": "theia rebuild:browser",
-    "rebuild:electron": "theia rebuild:electron"
+    "rebuild:electron": "theia rebuild:electron",
+    "upgrade:latest": "lerna run upgrade:latest"
   },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "npm-check-updates": "^16.10.8"
   },
   "workspaces": [
     "comparison-extension",
